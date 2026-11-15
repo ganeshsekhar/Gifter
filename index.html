@@ -537,8 +537,8 @@
   .hero, .panel, .box, .pick, .me, .round, .filter-btn { -webkit-backdrop-filter: blur(22px) saturate(1.400); backdrop-filter: blur(22px) saturate(1.400); }
   .hero { background: radial-gradient(120% 150% at 100% 0%, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 62%), var(--glass); }
   .hero .seg, .seg { background: var(--glass-chip); }
-  /* the chosen tab must be obvious: a clearly lighter pill with an edge, bold ink text */
-  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--seg-sel); color: var(--ink); box-shadow: 0 0 0 1px var(--seg-sel-edge), 0 2px 8px rgba(0, 0, 0, .18); }
+  /* the chosen tab is filled with the primary colour — same as selected chips, and the same in light and dark */
+  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent); }
   .tab { color: var(--muted); }
   .card { box-shadow: 0 8px 26px rgba(30, 24, 110, .10), inset 0 1px 0 var(--glass-shine); }
   @media (hover: hover) { .card:hover { box-shadow: 0 18px 40px rgba(30, 24, 110, .20), inset 0 1px 0 var(--glass-shine); } }
