@@ -13,7 +13,11 @@ A private gift wishlist for two. Free to run:
   price fill in by themselves. Every field can be overridden, including a custom image link for
   stores that block lookups.
 - **Sort and filter** — by category (picked in the form, or guessed from the title), price range,
-  newest/oldest and price. Prices show in one format (`₹12,495`) however the shop wrote them.
+  newest/oldest, price and "most needed".
+- **Want or need** — every idea carries a want-to-need slider, so the giver knows what matters most.
+- **Currency switch** — show all prices in INR, USD, EUR or GBP. Converted prices are marked `≈` and
+  use daily rates from the public frankfurter.dev service (only currency codes are sent). The saved
+  price keeps its original currency.
 - **Secret claiming** — on your partner's wishlist you can mark items **🎁 Claimed / Bought** and
   filter by **Available to Gift** or **Claimed by Me**. On your own wishlist no claim badges or
   filters exist, and the backend never sends claim data for your own items. Editing an item (note,

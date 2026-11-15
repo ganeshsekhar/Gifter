@@ -17,7 +17,7 @@
 const PASSCODE = 'CHANGE-ME';
 
 const SHEET_NAME = 'Items';
-const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy', 'category'];
+const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy', 'category', 'need'];
 
 function doGet() {
   return json({ ok: true, message: 'Wishlist backend is running.' });
@@ -119,6 +119,7 @@ function publicItem(o, user) {
   const mine = same(o.addedBy, user);
   return {
     id: o.id, url: o.url, title: o.title, image: o.image, price: o.price, note: o.note, category: o.category,
+    need: Math.min(5, Math.max(1, Math.round(Number(o.need)) || 1)),   // 1 = want … 5 = need
     addedBy: o.addedBy, createdAt: Number(o.createdAt) || 0,
     claimed: mine ? false : !!o.claimedBy,
     claimedBy: mine ? '' : o.claimedBy
@@ -137,7 +138,8 @@ function fields(item) {
     image: httpUrl(item.image),
     price: clean(item.price, 40),
     note: clean(item.note, 500),
-    category: clean(item.category, 30)
+    category: clean(item.category, 30),
+    need: String(Math.min(5, Math.max(1, Math.round(Number(item.need)) || 1)))
   };
 }
 
@@ -168,7 +170,7 @@ function updateItem(id, item, user) {
   if ('title' in item || 'url' in item) {
     const f = fields(item);
     if (!f.title && !f.url) return { ok: false, error: 'Add a link or a title.' };
-    o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note; o.category = f.category;
+    o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note; o.category = f.category; o.need = f.need;
   }
   // Edits never touch the claim; only the other person can set or clear it.
   if ('claimed' in item && !same(o.addedBy, user)) o.claimedBy = item.claimed ? user : '';
