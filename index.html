@@ -653,6 +653,7 @@
   .dd-menu button[aria-selected="true"] { font-weight: 700; }
   .dd-menu button[aria-selected="true"]::after { content: "✓"; color: var(--primary); font-weight: 700; }
   @media (hover: hover) { .dd-menu button:hover { background: var(--glass-chip); } }
+  .cat-chips .opt { min-height: 40px; padding: 0 14px; }
 </style>
 </head>
 <body>
@@ -845,8 +846,9 @@
       <div><label for="fprice">Price</label><input id="fprice" maxlength="40" autocomplete="off"></div>
       <div><label for="fimage">Image link (override)</label><input id="fimage" type="url" inputmode="url" autocomplete="off"></div>
     </div>
-    <label for="fcat">Category</label>
-    <select id="fcat"></select>
+    <label id="fcatLabel">Category</label>
+    <select id="fcat" hidden></select>
+    <div class="opts cat-chips" id="fcatChips" role="group" aria-labelledby="fcatLabel"></div>
     <div class="preview" id="fpreview" hidden><img id="fpreviewImg" alt="" referrerpolicy="no-referrer"></div>
     <label for="fnote">Note (size, colour, why you like it…)</label>
     <textarea id="fnote" maxlength="500"></textarea>
@@ -1446,6 +1448,7 @@
     showNeed();
     $('fcat').replaceChildren(el('option', { value: '' }, 'Auto-detect from title'), ...CATEGORY_NAMES.map((c) => el('option', { value: c }, c)));
     $('fcat').value = CATEGORY_NAMES.includes(item?.category) ? item.category : '';
+    drawCategoryChips();
     for (const id of Object.values(AUTO)) delete $(id).dataset.auto;
     $('fstatus').textContent = '';
     $('fstatus').classList.remove('busy');
@@ -1456,6 +1459,15 @@
     $('dlg').showModal();
     if (!item) $('furl').focus({ preventScroll: true });
     $('dlg').scrollTop = 0;                       // always open at the top, under the sheet header
+  }
+
+  // Category is picked from chips; the hidden <select> still holds the value the form saves.
+  function drawCategoryChips() {
+    const options = [['', 'Auto'], ...CATEGORY_NAMES.map((c) => [c, c])];
+    $('fcatChips').replaceChildren(...options.map(([value, text]) =>
+      el('button', { type: 'button', class: 'opt', 'aria-pressed': String($('fcat').value === value),
+        title: value ? null : 'Guess from the title',
+        onclick: () => { $('fcat').value = value; drawCategoryChips(); } }, text)));
   }
 
   function showNeed() { $('fneedOut').textContent = NEED_LABELS[Number($('fneed').value)] || 'Want'; }
