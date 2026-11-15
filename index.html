@@ -7,153 +7,182 @@
 <meta name="referrer" content="no-referrer">
 <title>Gifter</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf5ef; --surface: #ffffff; --ink: #2b2226; --muted: #7a6c70; --line: #eadfd6;
-    --accent: #b23a5b; --accent-ink: #ffffff; --accent-soft: #f7e3e8; --ok: #2f7d57; --thumb: #ffffff;
-    --shadow: 0 1px 2px rgba(60, 30, 40, .06), 0 6px 20px rgba(60, 30, 40, .06);
+    --bg: #f5f4f0; --surface: #ffffff; --ink: #17181a; --muted: #74767c; --line: #e4e2dc; --soft: #ebe9e3;
+    --accent: #17181a; --on-accent: #ffffff; --claim: #1f7a55; --on-claim: #ffffff; --danger: #b3261e;
+    --seg: #e9e7e1; --seg-on: #ffffff; --shadow: 0 1px 2px rgba(0, 0, 0, .05);
+    --pop: 0 10px 30px rgba(0, 0, 0, .16);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #191416; --surface: #241d20; --ink: #f3ebee; --muted: #a8989d; --line: #3a2f33;
-      --accent: #e77c98; --accent-ink: #2a0f17; --accent-soft: #3b2029; --ok: #3f9c70; --thumb: #f4eff0;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+      --bg: #111214; --surface: #1c1d20; --ink: #f1f0ec; --muted: #9a9ca3; --line: #2d2f34; --soft: #26282c;
+      --accent: #f1f0ec; --on-accent: #17181a; --claim: #3f9c70; --on-claim: #ffffff; --danger: #f2877f;
+      --seg: #1c1d20; --seg-on: #34373d; --shadow: none; --pop: 0 10px 30px rgba(0, 0, 0, .5);
     }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    min-height: 100dvh;
+    font: 15px/1.45 "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100dvh; -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; margin: 0; }
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.02em; }
   button, input, textarea, select { font: inherit; color: inherit; }
   button { cursor: pointer; }
   [hidden] { display: none !important; }
 
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 96px; }
-  header.top { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 18px 0 12px; }
-  header.top h1 { font-size: 26px; flex: 1; letter-spacing: -.01em; white-space: nowrap; }
-  .iam { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
-  .iam select {
-    width: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 6px 10px; font-weight: 600; color: var(--ink);
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 14px 104px; }
+  header.top { display: flex; align-items: center; gap: 8px; padding: 16px 0 14px; }
+  header.top h1 { font-size: 22px; flex: 1; }
+  .me {
+    position: relative; display: flex; align-items: center; gap: 6px; margin: 0; min-width: 0;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 26px 4px 4px;
   }
-  .icon-btn { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 14px; }
-  .link-btn { background: none; border: 0; padding: 4px; color: var(--accent); font-size: 14px; text-decoration: underline; }
+  .me i {
+    flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+    display: grid; place-content: center; font-style: normal; font-size: 12px; font-weight: 700;
+  }
+  .me select {
+    appearance: none; -webkit-appearance: none; background: transparent; border: 0; padding: 0; width: auto;
+    max-width: 34vw; font-size: 13px; font-weight: 600; color: var(--ink); text-overflow: ellipsis; cursor: pointer;
+  }
+  .me select:focus { outline: none; }
+  .me:focus-within { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .me::after { content: "▾"; position: absolute; right: 10px; font-size: 11px; color: var(--muted); pointer-events: none; }
+  .round {
+    flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line);
+    display: grid; place-content: center; font-size: 15px; padding: 0;
+  }
 
-  .banner { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
+  .banner { background: var(--soft); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+  .seg { display: flex; background: var(--seg); border-radius: 12px; padding: 4px; margin-bottom: 12px; max-width: 460px; }
   .tab {
-    background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 12px; font-weight: 600;
-    color: var(--muted); margin-bottom: -1px;
+    flex: 1; min-width: 0; background: none; border: 0; border-radius: 8px; padding: 8px 6px;
+    font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-  .tab .n { font-weight: 400; opacity: .7; margin-left: 4px; }
+  .tab[aria-selected="true"] { background: var(--seg-on); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
+  .tab .n { font-weight: 400; margin-left: 5px; }
 
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 14px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
-    border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
-    padding: 7px 14px; font-size: 14px; white-space: nowrap;
+    border: 1px solid var(--line); background: transparent; border-radius: 999px; color: var(--muted);
+    padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;
   }
-  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .chip .n { opacity: .7; margin-left: 4px; }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip .n { margin-left: 4px; font-weight: 400; }
 
-  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); }
-  @media (min-width: 640px) { .grid { gap: 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); } }
+  .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (min-width: 600px) { .grid { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
 
-  .card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-    display: flex; flex-direction: column; box-shadow: var(--shadow); min-width: 0;
-  }
-  .thumb {
-    position: relative; display: block; aspect-ratio: 1 / 1; background: var(--thumb);
-    border-bottom: 1px solid var(--line); text-decoration: none;
-  }
-  .thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .thumb .ph {
-    position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px;
-    background: var(--accent-soft); color: var(--muted); font-size: 13px; padding: 12px;
-  }
-  .thumb .ph span { font-size: 40px; }
+  .card { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; }
+  .pic { position: relative; aspect-ratio: 4 / 5; }
+  .media { display: block; position: absolute; inset: 0; border-radius: 14px 14px 0 0; overflow: hidden; background: var(--soft); text-decoration: none; }
+  .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 4px; color: var(--muted); font-size: 12px; padding: 12px; overflow-wrap: anywhere; }
+  .ph span { font-size: 44px; font-weight: 700; line-height: 1; opacity: .45; }
   .badge {
-    position: absolute; top: 8px; left: 8px; background: var(--ok); color: #fff;
-    font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+    position: absolute; top: 8px; left: 8px; background: var(--claim); color: var(--on-claim);
+    font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; pointer-events: none;
   }
-  .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-  .body h3 {
-    font-size: 16px; line-height: 1.3; overflow-wrap: anywhere;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  .more {
+    position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0;
+    background: rgba(255, 255, 255, .92); color: #17181a; font-weight: 700; font-size: 15px; line-height: 1;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
   }
-  .body h3 a { color: inherit; text-decoration: none; }
-  .body h3 a:hover { text-decoration: underline; }
-  .price { font-weight: 600; }
-  .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
-  .note { font-size: 14px; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 8px; }
-  .act { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 5px 9px; font-size: 13px; }
-  .act:hover { border-color: var(--accent); }
-  .act.claim { flex: 1 1 100%; font-weight: 600; padding: 7px 9px; }
-  .act.on { background: var(--ok); border-color: var(--ok); color: #fff; }
-  .act.danger { color: var(--accent); }
+  .menu {
+    position: absolute; top: 44px; right: 8px; z-index: 5; min-width: 132px; padding: 4px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--pop);
+    display: flex; flex-direction: column;
+  }
+  .menu a, .menu button {
+    background: none; border: 0; text-align: left; padding: 9px 10px; border-radius: 8px;
+    font-size: 14px; color: var(--ink); text-decoration: none;
+  }
+  .menu a:hover, .menu button:hover { background: var(--soft); }
+  .menu .danger { color: var(--danger); }
 
-  .empty { text-align: center; color: var(--muted); padding: 56px 16px; }
-  .empty span { font-size: 44px; display: block; margin-bottom: 8px; }
+  .info { padding: 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+  .info h3 {
+    font-size: 13.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .info h3 a { color: inherit; text-decoration: none; }
+  .row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .price { font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .shop { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .note { font-size: 12px; color: var(--muted); margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .when { font-size: 11px; color: var(--muted); }
+  .claim {
+    background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
+    border-radius: 10px; padding: 8px 6px; font-size: 12px; font-weight: 700;
+  }
+  .grow { flex: 1; min-height: 5px; }
+  .claim.done { background: var(--claim); border-color: var(--claim); color: var(--on-claim); }
+
+  .skel .pic, .skel i { background: var(--soft); animation: pulse 1.2s ease-in-out infinite alternate; }
+  .skel .pic { border-radius: 14px 14px 0 0; }
+  .skel i { display: block; height: 11px; border-radius: 6px; margin: 4px 0; }
+  @keyframes pulse { to { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) { .skel .pic, .skel i { animation: none; } }
+
+  .empty { text-align: center; color: var(--muted); padding: 64px 20px; font-size: 14px; }
 
   .fab {
-    position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom));
-    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 999px;
-    padding: 14px 22px; font-weight: 600; font-size: 16px; box-shadow: 0 6px 20px rgba(120, 30, 60, .35);
+    position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom));
+    background: var(--accent); color: var(--on-accent); border: 0; border-radius: 14px;
+    padding: 14px 20px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 22px rgba(0, 0, 0, .25);
   }
-  .primary {
-    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px;
-    padding: 11px 18px; font-weight: 600;
-  }
-  .ghost { background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 11px 18px; }
+  .primary { background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 700; }
+  .ghost { background: transparent; border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; font-weight: 600; }
   button:disabled { opacity: .55; cursor: default; }
 
-  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
-  label.check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 14px 0 5px; }
+  label.check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 14px; font-weight: 500; }
   label.check input { width: auto; }
-  input, textarea, select {
-    width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
-  }
+  input, textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; }
   textarea { resize: vertical; min-height: 64px; }
-  input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .hint { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
 
-  .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 16px; }
-  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
-  .box + .box { margin-top: 16px; }
-  .setup h1 { font-size: 28px; }
-  .setup h2 { font-size: 19px; }
+  .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
+  .box { background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
+  .box + .box { margin-top: 12px; }
+  .setup h1 { font-size: 26px; }
+  .setup h2 { font-size: 17px; }
   .setup p { color: var(--muted); margin: 6px 0 4px; font-size: 14px; }
   .setup .btns { display: flex; gap: 10px; margin-top: 18px; }
   .setup .btns .primary { flex: 1; }
-  .err { color: var(--accent); font-size: 14px; margin-top: 10px; min-height: 1.2em; }
+  .err { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 1.2em; }
 
   dialog {
-    border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink);
+    border: 0; border-radius: 20px; background: var(--surface); color: var(--ink); box-shadow: var(--pop);
     padding: 20px; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
   }
-  dialog::backdrop { background: rgba(20, 10, 14, .55); }
-  dialog h2 { font-size: 22px; }
-  .row { display: flex; gap: 12px; }
-  .row > div { flex: 1; min-width: 0; }
+  dialog::backdrop { background: rgba(10, 10, 12, .5); }
+  dialog h2 { font-size: 19px; }
+  @media (max-width: 560px) {
+    dialog { margin: auto 0 0; width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  }
+  .cols { display: flex; gap: 10px; }
+  .cols > div { flex: 1; min-width: 0; }
   .urlrow { display: flex; gap: 8px; }
   .urlrow input { flex: 1; min-width: 0; }
   .urlrow button { white-space: nowrap; padding: 8px 12px; }
-  .status { font-size: 13px; color: var(--muted); min-height: 1.3em; margin-top: 4px; }
-  .preview { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--thumb); height: 140px; display: grid; place-content: center; overflow: hidden; }
-  .preview img { max-width: 100%; height: 140px; object-fit: contain; }
-  .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .status { font-size: 12px; color: var(--muted); min-height: 1.3em; margin-top: 5px; }
+  .preview { margin-top: 12px; border-radius: 12px; background: var(--soft); height: 170px; overflow: hidden; }
+  .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .dlg-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .dlg-actions .primary { flex: 1; }
 
   .toast {
-    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: var(--ink); color: var(--bg);
-    padding: 10px 16px; border-radius: 10px; font-size: 14px; max-width: calc(100vw - 32px); z-index: 10;
+    position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: calc(100vw - 32px); z-index: 10;
   }
 </style>
 </head>
@@ -162,9 +191,9 @@
 <!-- First-run setup, and Settings later -->
 <section class="setup" id="setup" hidden>
   <form class="box" id="setupForm">
-    <h1 id="setupTitle">🎁 Gifter</h1>
+    <h1 id="setupTitle">Gifter</h1>
     <p id="setupLead">A private wishlist for two. Set up this device once.</p>
-    <div class="row">
+    <div class="cols">
       <div><label for="sme">Your name</label><input id="sme" maxlength="40" autocomplete="off" required></div>
       <div><label for="spartner">Partner's name</label><input id="spartner" maxlength="40" autocomplete="off" required></div>
     </div>
@@ -199,17 +228,17 @@
 
 <div class="wrap" id="app" hidden>
   <header class="top">
-    <h1>🎁 Gifter</h1>
-    <label class="iam" for="iam" style="margin:0">I am: <select id="iam"></select></label>
-    <button class="icon-btn" id="refresh" title="Reload list">↻</button>
-    <button class="icon-btn" id="settingsBtn">⚙ Settings</button>
+    <h1>Gifter</h1>
+    <label class="me" for="iam" title="I am"><i id="avatar" aria-hidden="true"></i><select id="iam" aria-label="I am"></select></label>
+    <button class="round" id="refresh" aria-label="Reload list" title="Reload list">↻</button>
+    <button class="round" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
-  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <nav class="seg" id="tabs" role="tablist"></nav>
   <nav class="chips" id="chips" aria-label="Filter" hidden></nav>
   <main class="grid" id="grid"></main>
-  <div class="empty" id="empty" hidden><span>🛍️</span><div id="emptyText"></div></div>
-  <button class="fab" id="addBtn">+ Add Idea</button>
+  <div class="empty" id="empty" hidden><div id="emptyText"></div></div>
+  <button class="fab" id="addBtn">+ Add idea</button>
 </div>
 
 <dialog id="dlg">
@@ -223,7 +252,7 @@
     <div class="status" id="fstatus"></div>
     <label for="ftitle">Title</label>
     <input id="ftitle" maxlength="200" autocomplete="off">
-    <div class="row">
+    <div class="cols">
       <div><label for="fprice">Price</label><input id="fprice" maxlength="40" autocomplete="off"></div>
       <div><label for="fimage">Image link (override)</label><input id="fimage" type="url" inputmode="url" autocomplete="off"></div>
     </div>
@@ -258,6 +287,7 @@
   let tab = 'theirs';        // 'theirs' | 'mine'
   let filter = 'all';        // 'all' | 'available' | 'claimed'  (only on their wishlist)
   let editingId = null;
+  let loading = false;
 
   const me = () => settings.names[settings.active];
   const other = () => settings.names[1 - settings.active];
@@ -339,47 +369,78 @@
   }
 
   function placeholder(item) {
-    return el('div', { class: 'ph' }, el('span', {}, '🎁'), domainOf(item.url) || 'No picture');
+    const text = (item.title || domainOf(item.url) || '?').trim();
+    return el('div', { class: 'ph' }, el('span', {}, text.charAt(0).toUpperCase()), domainOf(item.url) || 'No photo');
   }
+
+  function closeMenus() {
+    document.querySelectorAll('.menu').forEach((m) => m.remove());
+    document.querySelectorAll('.more[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  }
+  document.addEventListener('click', closeMenus);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenus(); });
 
   function card(item) {
     const mine = same(item.addedBy, me());
     const link = isHttp(item.url) ? item.url : null;
     const title = item.title || domainOf(item.url) || 'Untitled';
+    const shop = domainOf(item.url);
     const linkAttrs = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
 
-    const thumb = el(link ? 'a' : 'div', { class: 'thumb', ...linkAttrs, 'aria-label': link ? 'Open ' + title : null });
+    const media = el(link ? 'a' : 'div', { class: 'media', ...linkAttrs, 'aria-label': link ? 'Open ' + title : null });
     if (isHttp(item.image)) {
       const img = el('img', { src: item.image, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' });
       img.addEventListener('error', () => img.replaceWith(placeholder(item)));
-      thumb.append(img);
+      media.append(img);
     } else {
-      thumb.append(placeholder(item));
+      media.append(placeholder(item));
     }
+
+    const pic = el('div', { class: 'pic' }, media);
     // Claim UI exists only on the other person's wishes — never on your own.
-    if (!mine && item.claimed) thumb.append(el('span', { class: 'badge' }, '🎁 Claimed'));
+    if (!mine && item.claimed) pic.append(el('span', { class: 'badge' }, 'Claimed'));
+
+    const more = el('button', {
+      class: 'more', 'aria-label': 'More options for ' + title, 'aria-haspopup': 'menu', 'aria-expanded': 'false',
+      onclick: (e) => {
+        e.stopPropagation();
+        const wasOpen = more.getAttribute('aria-expanded') === 'true';
+        closeMenus();
+        if (wasOpen) return;
+        more.setAttribute('aria-expanded', 'true');
+        pic.append(el('div', { class: 'menu', role: 'menu' },
+          link && el('a', { role: 'menuitem', ...linkAttrs }, 'Open link'),
+          el('button', { role: 'menuitem', onclick: () => openForm(item) }, 'Edit'),
+          el('button', { role: 'menuitem', class: 'danger', onclick: () => removeItem(item) }, 'Delete')));
+      },
+    }, '⋯');
+    pic.append(more);
 
     return el('article', { class: 'card' },
-      thumb,
-      el('div', { class: 'body' },
+      pic,
+      el('div', { class: 'info' },
         el('h3', {}, link ? el('a', linkAttrs, title) : title),
-        item.price && el('div', { class: 'price' }, item.price),
+        (item.price || shop) && el('div', { class: 'row' }, el('span', { class: 'price' }, item.price || ''), el('span', { class: 'shop' }, shop)),
         item.note && el('p', { class: 'note' }, item.note),
-        el('div', { class: 'sub' }, [ago(item.createdAt), domainOf(item.url)].filter(Boolean).join(' · ')),
-        el('div', { class: 'actions' },
-          !mine && el('button', { class: 'act claim' + (item.claimed ? ' on' : ''), title: item.addedBy + ' will not see this', onclick: () => toggleClaim(item) },
-            item.claimed ? '🎁 Claimed / Bought — undo' : '🎁 Mark Claimed / Bought'),
-          el('button', { class: 'act', onclick: () => openForm(item) }, 'Edit'),
-          el('button', { class: 'act danger', onclick: () => removeItem(item) }, 'Delete'),
-        ),
+        el('div', { class: 'grow' }),
+        mine
+          ? el('div', { class: 'when' }, 'Added ' + ago(item.createdAt))
+          : el('button', { class: 'claim' + (item.claimed ? ' done' : ''), title: item.addedBy + ' will not see this', onclick: () => toggleClaim(item) },
+              item.claimed ? '✓ Claimed by you' : 'Mark claimed'),
       ),
     );
+  }
+
+  function skeleton() {
+    return el('div', { class: 'card skel', 'aria-hidden': 'true' }, el('div', { class: 'pic' }),
+      el('div', { class: 'info' }, el('i', {}), el('i', { style: 'width:55%' })));
   }
 
   function render() {
     const mineList = items.filter((it) => same(it.addedBy, me()));
     const theirList = items.filter((it) => same(it.addedBy, other()));
 
+    $('avatar').textContent = me().charAt(0).toUpperCase();
     $('iam').replaceChildren(...settings.names.map((n, i) => el('option', { value: String(i), selected: i === settings.active }, n)));
 
     const tabs = [
@@ -409,10 +470,15 @@
       .filter((it) => filter === 'all' || (filter === 'claimed') === !!it.claimed)
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
+    if (loading && !items.length) {             // first load: placeholders instead of a false "empty" message
+      $('grid').replaceChildren(skeleton(), skeleton(), skeleton(), skeleton());
+      $('empty').hidden = true;
+      return;
+    }
     $('grid').replaceChildren(...shown.map(card));
     $('empty').hidden = shown.length > 0;
     $('emptyText').textContent = !onTheirs
-      ? 'Your wishlist is empty. Tap “+ Add Idea” and paste a product link.'
+      ? 'Your wishlist is empty. Tap “+ Add idea” and paste a product link.'
       : filter === 'claimed' ? 'You have not claimed anything yet.'
       : filter === 'available' && theirList.length ? 'Everything here is already claimed.'
       : other() + ' has not added any wishes yet.';
@@ -440,9 +506,10 @@
       const fresh = (await api('list')).items;
       if (seq !== loadSeq) return;                 // profile switched while loading
       items = fresh;
+      loading = false;
       store.set(KEY.cache, { user: me(), items });
       render();
-    } catch (err) { if (seq === loadSeq) fail(err); }
+    } catch (err) { if (seq === loadSeq) { loading = false; render(); fail(err); } }
   }
 
   function replaceItem(fresh) {
@@ -577,6 +644,7 @@
     $('demoBanner').hidden = !demo();
     const cache = store.get(KEY.cache, null);
     items = !demo() && cache && same(cache.user, me()) ? cache.items : [];   // last known list instantly, then refresh
+    loading = !items.length;
     render();
     load();
   }
@@ -586,7 +654,7 @@
     const first = !settings;
     $('app').hidden = true;
     $('setup').hidden = false;
-    $('setupTitle').textContent = first ? '🎁 Gifter' : 'Settings';
+    $('setupTitle').textContent = first ? 'Gifter' : 'Settings';
     $('setupLead').textContent = first ? 'A private wishlist for two. Set up this device once.' : 'Names, Google Sheet connection and passcode for this device.';
     $('setupBtn').textContent = first ? 'Connect' : 'Save';
     $('setupBack').hidden = first;
@@ -664,7 +732,7 @@
     settings.active = Number($('iam').value) === 1 ? 1 : 0;
     store.set(KEY.settings, settings);
     store.del(KEY.cache);
-    items = []; tab = 'theirs'; filter = 'all';     // claims differ per person: drop the old view at once
+    items = []; loading = true; tab = 'theirs'; filter = 'all';     // claims differ per person: drop the old view at once
     render();
     load();
   });
