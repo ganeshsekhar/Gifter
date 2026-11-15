@@ -41,7 +41,7 @@
       --seg: #1b1b25; --seg-on: #343446;
       --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset; --lift: 0 14px 34px rgba(0, 0, 0, .5);
       --pop: 0 10px 30px rgba(0, 0, 0, .55);
-      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 34%;
+      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .20); --seg-sel-edge: rgba(255, 255, 255, .22);
       color-scheme: dark;
     }
   }
@@ -52,7 +52,7 @@
     --seg: #1b1b25; --seg-on: #343446;
     --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset; --lift: 0 14px 34px rgba(0, 0, 0, .5);
     --pop: 0 10px 30px rgba(0, 0, 0, .55);
-      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 34%;
+      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .20); --seg-sel-edge: rgba(255, 255, 255, .22);
     color-scheme: dark;
   }
   :root { color-scheme: light; }
@@ -521,14 +521,13 @@
   :root {
     --glass: rgba(255, 255, 255, .58); --glass-strong: rgba(255, 255, 255, .82); --glass-edge: rgba(255, 255, 255, .8); --glass-shine: rgba(255, 255, 255, .75);
     --glass-field: rgba(255, 255, 255, .55); --glass-chip: rgba(40, 40, 90, .07);
-    --glow-a: #6d5efc; --glow-b: #b06cff; --glow-c: #4cc3ff; --glow-mix: 26%;
+    --glow-a: #6d5efc; --glow-mix: 12%; --seg-sel: #ffffff; --seg-sel-edge: rgba(40, 40, 90, .10);
   }
-  body::before {                 /* the glows: one fixed layer behind everything, cheap to paint */
+  body::before {                 /* one quiet indigo wash from the top corner, a fainter echo at the bottom; fixed behind everything */
     content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(75vmax 75vmax at -12% -14%, color-mix(in srgb, var(--glow-a) var(--glow-mix), transparent), transparent 62%),
-      radial-gradient(60vmax 60vmax at 112% 28%, color-mix(in srgb, var(--glow-b) var(--glow-mix), transparent), transparent 62%),
-      radial-gradient(75vmax 75vmax at 55% 122%, color-mix(in srgb, var(--glow-c) var(--glow-mix), transparent), transparent 62%);
+      radial-gradient(80vmax 80vmax at -10% -16%, color-mix(in srgb, var(--glow-a) var(--glow-mix), transparent), transparent 60%),
+      radial-gradient(70vmax 70vmax at 108% 118%, color-mix(in srgb, var(--glow-a) calc(var(--glow-mix) * .500), transparent), transparent 60%);
   }
   .hero, .panel, .box, .banner, .card, .pick, .me, .round, .filter-btn {
     background: var(--glass); border: 1px solid var(--glass-edge);
@@ -538,7 +537,9 @@
   .hero, .panel, .box, .pick, .me, .round, .filter-btn { -webkit-backdrop-filter: blur(22px) saturate(1.400); backdrop-filter: blur(22px) saturate(1.400); }
   .hero { background: radial-gradient(120% 150% at 100% 0%, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 62%), var(--glass); }
   .hero .seg, .seg { background: var(--glass-chip); }
-  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--glass-strong); }
+  /* the chosen tab must be obvious: a clearly lighter pill with an edge, bold ink text */
+  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--seg-sel); color: var(--ink); box-shadow: 0 0 0 1px var(--seg-sel-edge), 0 2px 8px rgba(0, 0, 0, .18); }
+  .tab { color: var(--muted); }
   .card { box-shadow: 0 8px 26px rgba(30, 24, 110, .10), inset 0 1px 0 var(--glass-shine); }
   @media (hover: hover) { .card:hover { box-shadow: 0 18px 40px rgba(30, 24, 110, .20), inset 0 1px 0 var(--glass-shine); } }
   .opt { background: var(--glass-chip); }
