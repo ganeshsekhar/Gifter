@@ -44,18 +44,18 @@
 
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 14px 104px; }
   header.top { display: flex; align-items: center; gap: 8px; padding: 18px 0 20px; }
-  .brand { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; font-size: 21px; }
+  .brand { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; font-size: 23px; padding-top: 4px; }
   .logo { width: 30px; height: 30px; flex: none; color: var(--primary); }
   /* Wordmark: part of the logo. The dot of the "i" is the same heart as the bow on the box. */
   .wordmark { font: italic 600 1.320em/1 "Fraunces", Georgia, serif; letter-spacing: -.01em; white-space: nowrap; color: var(--ink); padding-right: .08em; }
   .wi { position: relative; display: inline-block; }
   .wheart { position: absolute; left: 50%; bottom: .640em; width: .330em; height: .310em; transform: translateX(-28%) rotate(10deg); fill: var(--primary); overflow: visible; }
-  .brand.big { margin-bottom: 18px; font-size: 30px; gap: 11px; }
+  .brand.big { margin-bottom: 18px; font-size: 34px; padding-top: 8px; }
   .brand.big .logo { width: 46px; height: 46px; }
   header.top .brand { flex: 1 0 auto; }            /* the wordmark never gives way; the name pill shrinks instead */
   header.top .me { flex: 0 1 auto; min-width: 0; }
   header.top .me select { min-width: 0; width: 100%; }
-  @media (max-width: 400px) { .brand { font-size: 19px; gap: 7px; } .logo { width: 27px; height: 27px; } }
+  @media (max-width: 400px) { .brand { font-size: 21px; } }
   .me {
     position: relative; display: flex; align-items: center; gap: 6px; margin: 0; min-width: 0;
     background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 26px 4px 4px;
@@ -340,7 +340,7 @@
 <!-- First-run setup, and Settings later -->
 <section class="setup" id="setup" hidden>
   <form class="box" id="setupForm">
-    <div class="brand big" role="img" aria-label="Gifter"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.8c-3.9-2.5-5.7-4.3-5.7-6.3a2.9 2.9 0 0 1 5.7-.9 2.9 2.9 0 0 1 5.7.9c0 2-1.8 3.8-5.7 6.3z" fill="var(--logo-heart)"/><path d="M5.8 11.5h8.6v5.8H5.8a2.3 2.3 0 0 1-2.3-2.3v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z" fill="currentColor"/></svg><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
+    <div class="brand big" role="img" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
     <h1 id="setupTitle">A private wishlist for two</h1>
     <p id="setupLead">Connect this device once. Your ideas stay in your own Google Sheet.</p>
     <div class="cols">
@@ -423,7 +423,7 @@
 
 <div class="wrap" id="app" hidden>
   <header class="top">
-    <h1 class="brand" aria-label="Gifter"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.8c-3.9-2.5-5.7-4.3-5.7-6.3a2.9 2.9 0 0 1 5.7-.9 2.9 2.9 0 0 1 5.7.9c0 2-1.8 3.8-5.7 6.3z" fill="var(--logo-heart)"/><path d="M5.8 11.5h8.6v5.8H5.8a2.3 2.3 0 0 1-2.3-2.3v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z" fill="currentColor"/></svg><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></h1>
+    <h1 class="brand" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></h1>
     <label class="pick" title="Show prices in"><select id="currency" aria-label="Show prices in">
       <option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
     </select></label>
