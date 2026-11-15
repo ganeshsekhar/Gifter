@@ -87,7 +87,18 @@
   }
   .eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--primary); }
   .hero h2 { font: 600 34px/1.1 "Fraunces", Georgia, serif; letter-spacing: -.02em; margin: 4px 0 6px; overflow-wrap: anywhere; }
-  .herosub { margin: 0 0 16px; font-size: 13.5px; color: var(--muted); max-width: 34ch; }
+  .herosub { margin: 0 0 6px; font-size: 13.5px; color: var(--muted); max-width: 34ch; }
+  .sync { position: relative; display: flex; align-items: center; gap: 7px; margin: 0 0 12px; padding: 0; border: 0; background: none; color: var(--muted); font-size: 12px; text-align: left; }
+  .sync:empty, .sync:has(#syncText:empty) { visibility: hidden; }
+  .pip { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--claim); }
+  .sync.offline .pip { background: #d99a1c; }
+  .sync.busy .pip, .status.busy::before {
+    width: 11px; height: 11px; background: none; border: 2px solid var(--line); border-top-color: var(--primary); border-radius: 50%;
+    animation: turn .7s linear infinite;
+  }
+  .status.busy::before { content: ""; display: inline-block; vertical-align: -1px; margin-right: 6px; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .sync.busy .pip, .status.busy::before { animation-duration: 2.500s; } }
   .hero-art { position: absolute; right: -18px; top: -14px; width: 132px; height: 132px; color: var(--primary); opacity: .2; transform: rotate(-14deg); pointer-events: none; }
   .hero .seg { position: relative; margin-bottom: 0; background: var(--bg); }
   @media (min-width: 600px) { .hero { padding: 28px 28px 24px; } .hero h2 { font-size: 44px; } .hero-art { width: 190px; height: 190px; right: 6px; top: -20px; } }
@@ -267,6 +278,50 @@
   .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
   .hint a { color: var(--primary); font-weight: 600; }
 
+  /* First-visit page: what Gifter is, then the connection form with its guide built in */
+  .welcome { max-width: 760px; margin: 0 auto; padding: 0 16px 64px; }
+  .w-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0 4px; }
+  .w-hero { padding: 26px 0 4px; }
+  .w-hero h1 { font: 600 clamp(36px, 9vw, 58px)/1.04 "Fraunces", Georgia, serif; letter-spacing: -.025em; margin: 8px 0 14px; }
+  .w-lead { margin: 0 0 22px; font-size: 16.500px; line-height: 1.550; color: var(--muted); max-width: 54ch; }
+  .w-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .w-cta button { padding: 0 22px; min-height: 48px; font-size: 15px; }
+  .w-fine { margin: 14px 0 0; font-size: 12.500px; color: var(--muted); }
+  .w-sample { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 30px 0 4px; }
+  .mini { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
+  .mini-pic { position: relative; aspect-ratio: 5 / 4; display: grid; place-content: center; background: color-mix(in srgb, var(--tint) 16%, var(--surface)); }
+  .mini-pic svg { width: 38px; height: 38px; fill: var(--tint); }
+  .mini-pic .badge { top: 6px; left: 6px; font-size: 10px; padding: 3px 7px; }
+  .mini-info { display: grid; gap: 2px; padding: 9px 10px 11px; font-size: 12.500px; min-width: 0; }
+  .mini-info > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-info .shop { display: flex; justify-content: space-between; gap: 6px; font-size: 9.500px; }
+  .mini-info .needtag { font-style: normal; font-size: 9.500px; }
+  .mini-info b { font-weight: 500; }
+  .w-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 520px) { .w-grid { grid-template-columns: minmax(0, 1fr); } }
+  .feat { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); }
+  .ico { width: 38px; height: 38px; border-radius: 50%; display: grid; place-content: center; margin-bottom: 10px; background: var(--primary-soft); color: var(--primary); }
+  .ico svg { width: 18px; height: 18px; display: block; }
+  .feat h3 { font-size: 15px; letter-spacing: -.01em; }
+  .feat p { margin: 4px 0 0; font-size: 13.500px; color: var(--muted); }
+  .w-steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .w-steps li { counter-increment: step; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .w-steps li::before { content: counter(step); width: 32px; height: 32px; border-radius: 50%; display: grid; place-content: center; background: var(--primary); color: var(--on-primary); font-weight: 700; font-size: 14px; }
+  .w-steps b { display: block; font-size: 15px; }
+  .w-steps span { display: block; margin-top: 2px; font-size: 13.500px; color: var(--muted); }
+  .welcome .sec { margin-top: 34px; scroll-margin-top: 12px; }
+  .welcome #setupLead { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+  .welcome .btns { display: flex; margin-top: 18px; }
+  .welcome .btns .primary { flex: 1; min-height: 48px; }
+  .guide { margin-top: 10px; padding: 0 14px; border-radius: 12px; background: var(--soft); }
+  .guide summary { cursor: pointer; padding: 13px 0; font-size: 13.500px; font-weight: 600; color: var(--primary); }
+  .guide ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 9px; font-size: 13.500px; }
+  .guide a { color: var(--primary); font-weight: 600; }
+  .guide code { font-size: 12.500px; padding: 1px 5px; border-radius: 5px; background: var(--surface); }
+  .guide .hint { margin: 0 0 14px; }
+  .w-foot { margin: 22px 0 0; text-align: center; font-size: 12.500px; color: var(--muted); }
+  .w-foot a { color: var(--primary); font-weight: 600; }
+  .welcome.invited .w-intro { display: none; }          /* arrived by setup link: skip the pitch */
   .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
   .box { background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
   .box + .box { margin-top: 12px; }
@@ -367,6 +422,7 @@
   .claim { padding: 0 14px; }
   .clear { padding: 0 2px; }
   /* the ⋯ button stays small to the eye; an invisible halo makes it 48px to the finger */
+  .sync { min-height: 34px; }
   .more { width: 36px; height: 36px; min-height: 0; }
   .more::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
   .menu { top: 50px; }
@@ -376,24 +432,75 @@
 <body>
 
 <!-- First-run setup, and Settings later -->
-<section class="setup" id="setup" hidden>
+<section class="welcome" id="setup" hidden>
+  <header class="w-top">
+    <div class="brand" role="img" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
+    <button type="button" class="ghost small" data-goto="connect">Connect</button>
+  </header>
+
+  <div class="w-intro">
+    <div class="w-hero">
+      <p class="eyebrow">A private wishlist for two</p>
+      <h1>Never guess a gift again.</h1>
+      <p class="w-lead">Gifter is a shared wishlist for you and your partner. Save things you’d love from any shop. They see your list, you see theirs — and whatever one of you quietly buys stays a surprise.</p>
+      <div class="w-cta">
+        <button type="button" class="primary" data-goto="connect">Get started</button>
+        <button type="button" class="ghost" id="tryDemo">Try the demo</button>
+      </div>
+      <p class="w-fine">Free. No sign-up. Your ideas live in your own Google Sheet.</p>
+    </div>
+
+    <div class="w-sample" aria-hidden="true">
+      <div class="mini" style="--tint:#4f46e5"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg></div><div class="mini-info"><span class="shop">myntra.com</span><b>Linen shirt, olive</b><span class="price">₹1,899</span></div></div>
+      <div class="mini" style="--tint:#d6457a"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg><span class="badge">Claimed</span></div><div class="mini-info"><span class="shop">amazon.in</span><b>Gold dial watch</b><span class="price">₹12,495</span></div></div>
+      <div class="mini" style="--tint:#1f9d6b"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg></div><div class="mini-info"><span class="shop">daivik.in <i class="needtag">Need</i></span><b>Kemp studs</b><span class="price">₹1,099</span></div></div>
+    </div>
+
+    <h2 class="sec">What you get</h2>
+    <div class="w-grid">
+      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.500 9.500l3-3M7 4.500l1.200-1.200a2.800 2.800 0 0 1 4 4L11 8.500M9 11.500l-1.200 1.200a2.800 2.800 0 0 1-4-4L5 7.500"/></svg></span><h3>Paste a link, get a card</h3><p>Photo, name and price fill in by themselves. On Android, share straight from any shopping app.</p></div>
+      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8s2.200-4 6-4 6 4 6 4-2.200 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="1.800"/><path d="M3 13L13 3"/></svg></span><h3>Surprises stay surprises</h3><p>Mark what you’ve bought. Your partner never sees which of their wishes are claimed.</p></div>
+      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.500h7M12.500 4.500H14M2 11.500h1.500M7 11.500h7"/><circle cx="10.700" cy="4.500" r="1.800"/><circle cx="5.200" cy="11.500" r="1.800"/></svg></span><h3>Want or need</h3><p>Every idea says how much it matters, so the right gift is easy to pick. Sort and filter by price and category.</p></div>
+      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.800l5 1.800v4c0 3-2.100 5.300-5 6.600-2.900-1.300-5-3.600-5-6.600v-4z"/><path d="M5.800 8l1.600 1.600 2.900-3"/></svg></span><h3>Private and yours</h3><p>No account with us and nothing on our servers. Everything sits in a Google Sheet you own, behind your passcode.</p></div>
+    </div>
+
+    <h2 class="sec">How it works</h2>
+    <ol class="w-steps">
+      <li><div><b>One of you sets it up</b><span>Create a free Google Sheet and paste in a small script. About 10 minutes, once. The steps are below.</span></div></li>
+      <li><div><b>Invite your partner</b><span>Send one setup link from Settings. They open it and they’re in.</span></div></li>
+      <li><div><b>Add ideas whenever you spot them</b><span>Install Gifter on your phone and keep adding. Next birthday is sorted.</span></div></li>
+    </ol>
+  </div>
+
+  <h2 class="sec" id="connect"><span id="connectTitle">Connect this device</span></h2>
   <form class="box" id="setupForm">
-    <div class="brand big" role="img" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
-    <h1 id="setupTitle">A private wishlist for two</h1>
-    <p id="setupLead">Connect this device once. Your ideas stay in your own Google Sheet.</p>
+    <p id="setupLead">Enter your names, then the script address and passcode from your Google Sheet.</p>
     <div class="cols">
       <div><label for="sme">Your name</label><input id="sme" maxlength="40" autocomplete="off" required></div>
       <div><label for="spartner">Partner's name</label><input id="spartner" maxlength="40" autocomplete="off" required></div>
     </div>
     <label for="sapi">Google Apps Script web app URL</label>
     <input id="sapi" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-    <p class="hint">No script yet? <a href="https://github.com/ganeshsekhar/Gifter#setup-about-10-minutes-once" target="_blank" rel="noopener">Set up your own wishlist in about 10 minutes</a> — free, and your data stays in your own Google Sheet. Or leave this blank to try demo mode.</p>
+    <details class="guide" id="guide">
+      <summary>No script yet? Set one up in about 10 minutes</summary>
+      <ol>
+        <li>Open a new Google Sheet: <a href="https://sheets.new" target="_blank" rel="noopener">sheets.new</a>. Any name; leave it empty.</li>
+        <li>In the Sheet, choose <b>Extensions → Apps Script</b>. Delete the sample code there.</li>
+        <li><button type="button" class="ghost small" id="copyScript">Copy the Gifter script</button> and paste it into the editor.</li>
+        <li>Near the top, change <code>CHANGE-ME</code> to a passcode of your own. Save.</li>
+        <li><b>Deploy → New deployment → Web app</b>. Execute as <b>Me</b>, who has access <b>Anyone</b>. Your passcode is what keeps others out.</li>
+        <li>Approve Google’s prompt (Advanced → Go to project). It should ask only for this spreadsheet and “connect to an external service”.</li>
+        <li>Copy the <b>Web app URL</b> (it ends in <code>/exec</code>) and paste it above, with your passcode below.</li>
+      </ol>
+      <p class="hint">Stuck? The <a href="https://github.com/ganeshsekhar/Gifter#setup-about-10-minutes-once" target="_blank" rel="noopener">full guide</a> has more detail.</p>
+    </details>
     <label for="spass">Shared passcode</label>
     <input id="spass" type="password" autocomplete="off">
-    <p class="hint">Saved only in this browser. Never stored in the website's code.</p>
+    <p class="hint">Saved only in this browser. Leave the URL and passcode blank to try demo mode.</p>
     <div class="err" id="setupErr" role="alert"></div>
     <div class="btns"><button class="primary" id="setupBtn">Connect</button></div>
   </form>
+  <p class="w-foot">Free and open source · <a href="https://github.com/ganeshsekhar/Gifter" target="_blank" rel="noopener">Code on GitHub</a></p>
 </section>
 
 <section class="settings" id="settingsPage" hidden>
@@ -482,6 +589,7 @@
     <p class="eyebrow" id="heroEyebrow"></p>
     <h2 id="heroTitle"></h2>
     <p class="herosub" id="heroSub"></p>
+    <button type="button" class="sync" id="sync" title="Refresh now"><span class="pip" aria-hidden="true"></span><span id="syncText" aria-live="polite"></span></button>
     <nav class="seg" id="tabs" role="tablist"></nav>
   </section>
   <div class="bar">
@@ -987,18 +1095,53 @@
 
   /* ---------- list actions ---------- */
 
+  // The list refreshes by itself: on open, when you come back to the app, and every minute while it is on screen.
+  // The little status under the title says what is going on; tap it to refresh now.
   let loadSeq = 0;
-  async function load() {
+  let writes = 0;              // saves in flight; background refreshes wait for them
+  let lastSync = 0;
+  let syncState = 'idle';      // 'idle' | 'busy' | 'offline'
+  function showSync() {
+    const mins = Math.floor((Date.now() - lastSync) / 60000);
+    $('sync').className = 'sync ' + syncState;
+    $('syncText').textContent = demo() ? 'Demo mode · saved on this device only'
+      : syncState === 'busy' ? 'Checking for new ideas…'
+      : syncState === 'offline' ? 'Offline · showing the last saved list. Tap to retry'
+      : !lastSync ? ''
+      : mins < 1 ? 'Up to date · just now' : 'Up to date · ' + mins + ' min ago';
+  }
+  async function load(quiet) {
     const seq = ++loadSeq;
+    const known = new Set(items.map((it) => it.id));
+    const hadList = !loading;
+    syncState = 'busy';
+    showSync();
     try {
       const fresh = (await api('list')).items;
       if (seq !== loadSeq) return;                 // profile switched while loading
+      if (writes > 0 && quiet) { syncState = 'idle'; showSync(); return; }   // do not overwrite a change still being saved
       items = fresh;
       loading = false;
+      lastSync = Date.now();
+      syncState = 'idle';
       store.set(KEY.cache, { user: me(), items });
       render();
-    } catch (err) { if (seq === loadSeq) { loading = false; render(); fail(err); } }
+      const added = hadList ? fresh.filter((it) => !known.has(it.id) && same(it.addedBy, other())).length : 0;
+      if (added) toast(other() + ' added ' + added + (added === 1 ? ' new idea' : ' new ideas'));
+    } catch (err) {
+      if (seq !== loadSeq) return;
+      loading = false;
+      syncState = err.unauthorized ? 'idle' : 'offline';
+      render();
+      if (err.unauthorized || !quiet) fail(err);   // background refreshes fail quietly; the status line says so
+    }
+    showSync();
   }
+  const autoRefresh = () => {
+    if (settings && !$('app').hidden && !document.hidden && !$('dlg').open && !demo() && syncState !== 'busy') load(true);
+  };
+  setInterval(autoRefresh, 60000);
+  setInterval(() => { if (settings && !$('app').hidden) showSync(); }, 20000);   // keeps "x min ago" honest
 
   function replaceItem(fresh) {
     const i = items.findIndex((x) => x.id === fresh.id);
@@ -1013,13 +1156,14 @@
     const want = !item.claimed;
     const seq = claimSeq[item.id] = (claimSeq[item.id] || 0) + 1;
     replaceItem({ ...item, claimed: want, claimedBy: want ? me() : '' });
+    writes++;
     try {
       const saved = (await api('update', { id: item.id, item: { claimed: want } })).item;
       if (claimSeq[item.id] === seq) replaceItem(saved);            // ignore replies overtaken by a newer tap
     } catch (err) {
       if (claimSeq[item.id] === seq && items.some((x) => x.id === item.id)) replaceItem(item);
       fail(err);
-    }
+    } finally { writes--; }
   }
 
   // Deleting also shows at once, and comes back if the Sheet refuses.
@@ -1029,12 +1173,13 @@
     items = items.filter((x) => x.id !== item.id);
     store.set(KEY.cache, { user: me(), items });
     render();
+    writes++;
     try {
       await api('delete', { id: item.id });
     } catch (err) {
       if (!items.some((x) => x.id === item.id)) { items = [...items, item]; store.set(KEY.cache, { user: me(), items }); render(); }
       fail(err);
-    }
+    } finally { writes--; }
   }
 
   /* ---------- add / edit form with auto-fill from the link ---------- */
@@ -1057,6 +1202,7 @@
     $('fcat').value = CATEGORY_NAMES.includes(item?.category) ? item.category : '';
     for (const id of Object.values(AUTO)) delete $(id).dataset.auto;
     $('fstatus').textContent = '';
+    $('fstatus').classList.remove('busy');
     $('formErr').textContent = '';
     lastFetched = item?.url || '';
     showPreview();
@@ -1083,9 +1229,11 @@
     lastFetched = url;
     if (demo()) { $('fstatus').textContent = 'Auto-fill needs the Google Sheet connection (Settings). Fill in by hand for now.'; return; }
     $('fstatus').textContent = 'Fetching photo, title and price…';
+    $('fstatus').classList.add('busy');
     try {
       const { meta } = await api('preview', { url });
       if ($('furl').value.trim() !== url) return;       // link changed while we waited
+      $('fstatus').classList.remove('busy');
       let filled = 0;
       for (const [key, id] of Object.entries(AUTO)) {
         const field = $(id);
@@ -1104,6 +1252,7 @@
         : filled ? 'Filled in from the link. Change anything you like.' : 'Details found; kept what you typed.';
     } catch (err) {
       if (err.unauthorized) { $('dlg').close(); fail(err); return; }
+      $('fstatus').classList.remove('busy');
       $('fstatus').textContent = 'Could not fetch details. Fill them in by hand.';
     }
   }
@@ -1197,6 +1346,12 @@
   // Shown until this device is connected; also where a setup link lands.
   function openSetup(message, prefill) {
     show('setup');
+    window.scrollTo(0, 0);
+    $('setup').classList.toggle('invited', !!prefill);
+    $('connectTitle').textContent = prefill ? 'You’re invited' : 'Connect this device';
+    $('setupLead').textContent = prefill
+      ? 'Your partner already set this up. Check the names, enter the passcode, and you’re in.'
+      : 'Enter your names, then the script address and passcode from your Google Sheet.';
     $('sme').value = prefill ? prefill.names[0] : '';
     $('spartner').value = prefill ? prefill.names[1] : '';
     $('sapi').value = prefill?.api || '';
@@ -1228,6 +1383,28 @@
       say(err.message);
     } finally {
       $('setupBtn').disabled = false;
+    }
+  });
+
+  // Welcome page buttons
+  for (const b of document.querySelectorAll('[data-goto]')) {
+    b.addEventListener('click', () => { $(b.dataset.goto).scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('sme').focus({ preventScroll: true }), 400); });
+  }
+  $('tryDemo').addEventListener('click', () => {
+    if (!$('sme').value.trim()) $('sme').value = 'Me';
+    if (!$('spartner').value.trim() || same($('spartner').value, $('sme').value)) $('spartner').value = 'Partner';
+    $('sapi').value = ''; $('spass').value = '';
+    $('setupForm').requestSubmit();
+  });
+  $('copyScript').addEventListener('click', async () => {
+    const file = 'apps-script/Code.gs';
+    try {
+      const code = await (await fetch(file)).text();
+      await navigator.clipboard.writeText(code);
+      $('copyScript').textContent = 'Copied ✓ — now paste it';
+      toast('Script copied. Paste it into the Apps Script editor.');
+    } catch {
+      window.open(file, '_blank', 'noopener');             // clipboard blocked: show the file to copy by hand
     }
   });
 
@@ -1425,7 +1602,8 @@
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   loadRates();
   narrow.addEventListener('change', () => { if (settings && !$('app').hidden) render(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && settings && !$('app').hidden) load(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && settings && !$('app').hidden && !$('dlg').open) load(true); });
+  $('sync').addEventListener('click', () => { if (syncState !== 'busy') load(); });
 
   const valid = (s) => s && typeof s.api === 'string' && Array.isArray(s.names) && s.names.length === 2 && s.names.every((n) => typeof n === 'string' && n) && (s.active === 0 || s.active === 1);
   if (!valid(settings)) settings = null;
