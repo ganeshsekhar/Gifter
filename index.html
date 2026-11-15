@@ -365,6 +365,7 @@
   .c-guide .hint { margin: 10px 0 0; }
   .c-guide .hint a { color: var(--primary); font-weight: 600; }
   @media (max-width: 820px) {
+    #connectDlg, #connectDlg.invited { width: min(560px, 100%); max-width: 100%; }
     .connect { grid-template-columns: minmax(0, 1fr); }
     .c-form { padding: 20px; }
     .c-form .sheet-top { margin: -20px -20px 2px; padding: 12px 20px 6px; }
@@ -430,6 +431,7 @@
   .xbtn { flex: none; width: 44px; height: 44px; margin-right: -10px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 17px; }
   .xbtn:hover { background: var(--soft); color: var(--ink); }
   .grabber { display: none; width: 42px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 6px; }
+  @media (max-width: 560px) { #connectDlg, #connectDlg.invited { width: 100%; } }   /* full-width bottom sheet, like the add form */
   @media (max-width: 599px) {
     .grabber { display: block; }
     .sheet-top { touch-action: none; cursor: grab; padding-top: 10px; }   /* drag this strip down to close */
