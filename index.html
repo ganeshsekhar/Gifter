@@ -68,7 +68,8 @@
   .tab[aria-selected="true"] { background: var(--seg-on); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
   .tab .n { font-weight: 400; margin-left: 5px; }
 
-  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 14px; scrollbar-width: none; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px; scrollbar-width: none; }
+  #tools { padding-bottom: 14px; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     border: 1px solid var(--line); background: transparent; border-radius: 999px; color: var(--muted);
@@ -76,6 +77,17 @@
   }
   .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
   .chip .n { margin-left: 4px; font-weight: 400; }
+  .chips { align-items: center; }
+  .pick { position: relative; flex: none; margin: 0; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; }
+  .pick::after { content: "▾"; position: absolute; right: 10px; font-size: 10px; color: var(--muted); pointer-events: none; }
+  .pick select {
+    appearance: none; -webkit-appearance: none; width: auto; background: transparent; border: 0; border-radius: 999px;
+    padding: 6px 24px 6px 12px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer;
+  }
+  .pick option { color: #17181a; background: #fff; }
+  .pick.on { background: var(--ink); border-color: var(--ink); }
+  .pick.on select, .pick.on::after { color: var(--bg); }
+  .clear { flex: none; background: none; border: 0; padding: 6px 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: underline; white-space: nowrap; }
 
   .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   @media (min-width: 600px) { .grid { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
@@ -110,17 +122,18 @@
   .info { padding: 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
   .info h3 {
     font-size: 13.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0; overflow-wrap: anywhere;
+    min-height: 2.6em;   /* always two lines tall, so prices line up across a row */
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .info h3 a { color: inherit; text-decoration: none; }
-  .row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-  .price { font-weight: 700; font-size: 14px; white-space: nowrap; }
-  .shop { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-  .note { font-size: 12px; color: var(--muted); margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-  .when { font-size: 11px; color: var(--muted); }
+  .foot { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 6px; }
+  .price { font-weight: 700; font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+  .shop { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .note { font-size: 12px; color: var(--muted); margin: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .when { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
   .claim {
     background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
-    border-radius: 10px; padding: 8px 6px; font-size: 12px; font-weight: 700;
+    border-radius: 10px; padding: 8px 6px; font-size: 12px; font-weight: 700; margin-top: 9px;
   }
   .grow { flex: 1; min-height: 5px; }
   .claim.done { background: var(--claim); border-color: var(--claim); color: var(--on-claim); }
@@ -236,7 +249,8 @@
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
   <nav class="seg" id="tabs" role="tablist"></nav>
-  <nav class="chips" id="chips" aria-label="Filter" hidden></nav>
+  <nav class="chips" id="chips" aria-label="Claim filter"></nav>
+  <nav class="chips" id="tools" aria-label="Filter and sort"></nav>
   <main class="grid" id="grid"></main>
   <div class="empty" id="empty" hidden><div id="emptyText"></div></div>
   <button class="fab" id="addBtn">+ Add idea</button>
@@ -257,6 +271,8 @@
       <div><label for="fprice">Price</label><input id="fprice" maxlength="40" autocomplete="off"></div>
       <div><label for="fimage">Image link (override)</label><input id="fimage" type="url" inputmode="url" autocomplete="off"></div>
     </div>
+    <label for="fcat">Category</label>
+    <select id="fcat"></select>
     <div class="preview" id="fpreview" hidden><img id="fpreviewImg" alt="" referrerpolicy="no-referrer"></div>
     <label for="fnote">Note (size, colour, why you like it…)</label>
     <textarea id="fnote" maxlength="500"></textarea>
@@ -287,6 +303,9 @@
   let items = [];
   let tab = 'theirs';        // 'theirs' | 'mine'
   let filter = 'all';        // 'all' | 'available' | 'claimed'  (only on their wishlist)
+  let catFilter = 'all';     // 'all' | a category name
+  let priceBand = 'any';     // 'any' | index into BANDS
+  let sortBy = 'new';        // 'new' | 'old' | 'low' | 'high'
   let editingId = null;
   let loading = false;
 
@@ -369,6 +388,66 @@
     return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  // One money format everywhere: "INR 3,411.00", "Rs. 3411/-" and "₹3,411" all show as ₹3,411.
+  const CURRENCY = { '₹': 'INR', 'rs': 'INR', 'rs.': 'INR', 'inr': 'INR', '$': 'USD', '€': 'EUR', '£': 'GBP' };
+  function parsePrice(raw) {
+    const m = String(raw || '').trim().match(/^(₹|\$|€|£|rs\.?|[a-z]{3})?\s*(\d[\d,]*(?:\.\d+)?)\s*(₹|\$|€|£|rs\.?|[a-z]{3})?\s*(?:\/-)?$/i);
+    if (!m) return null;                                   // not a plain price ("around 5k")
+    const token = (m[1] || m[3] || '').toLowerCase();
+    return { amount: Number(m[2].replace(/,/g, '')), code: CURRENCY[token] || token.toUpperCase() };
+  }
+  function formatPrice(raw) {
+    const text = String(raw || '').trim();
+    const p = parsePrice(text);
+    if (!p) return text;                                   // show as typed
+    const digits = { minimumFractionDigits: Number.isInteger(p.amount) ? 0 : 2, maximumFractionDigits: 2 };
+    try {
+      if (!p.code) return new Intl.NumberFormat('en-IN', digits).format(p.amount);
+      return new Intl.NumberFormat(p.code === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: p.code, ...digits }).format(p.amount);
+    } catch { return text; }
+  }
+  const amountOf = (item) => { const p = parsePrice(item.price); return p ? p.amount : null; };
+  // Currency sign for the price-range labels: taken from the first priced item, ₹ if none.
+  function currencySign(list) {
+    for (const it of list) {
+      const p = parsePrice(it.price);
+      if (!p || !p.code) continue;
+      try {
+        const part = new Intl.NumberFormat('en-IN', { style: 'currency', currency: p.code }).formatToParts(1).find((x) => x.type === 'currency');
+        if (part) return part.value.length > 1 ? part.value + ' ' : part.value;
+      } catch {}
+    }
+    return '₹';
+  }
+  const BANDS = [[0, 1000], [1000, 5000], [5000, 15000], [15000, Infinity]];
+
+  // Category: the one picked in the form, otherwise a guess from the words in the title.
+  const CATEGORY_RULES = [
+    ['Electronics', /phone|headphone|earbud|earphone|laptop|camera|speaker|tablet|charger|kindle|smart ?watch|console|keyboard|monitor/],
+    ['Jewellery', /jewel|earring|\bstuds?\b|necklace|\brings?\b|bracelet|bangle|pendant|jhumka|\bchains?\b|anklet|mangalsutra|nose ?pin|kemp/],
+    ['Watches', /watch/],
+    ['Bags', /\bbags?\b|handbag|tote|wallet|clutch|backpack|purse|sling/],
+    ['Footwear', /shoe|sneaker|sandal|\bheels?\b|\bboots?\b|slipper|loafer|footwear|jutti|\bflats\b/],
+    ['Apparel', /dress|shirt|kurta|kurti|saree|\bsari\b|\btops?\b|jeans|jacket|hoodie|sweater|skirt|lehenga|trouser|\bpants?\b|blazer|dupatta|\bcoat\b|apparel|co-?ord/],
+    ['Beauty', /perfume|parfum|lipstick|serum|skin ?care|make ?up|fragrance|moisturi|shampoo|kajal|\bcream\b/],
+    ['Home', /\blamps?\b|\bmugs?\b|candle|vase|cushion|bedsheet|decor|kitchen|bottle|planter|photo frame/],
+    ['Books', /\bbooks?\b|novel|paperback|hardcover/],
+  ];
+  const CATEGORY_NAMES = [...CATEGORY_RULES.map((r) => r[0]), 'Other'];
+  function categoryOf(item) {
+    if (CATEGORY_NAMES.includes(item.category)) return item.category;
+    const text = ((item.title || '') + ' ' + (item.note || '')).toLowerCase();
+    const hit = CATEGORY_RULES.find((r) => r[1].test(text));
+    return hit ? hit[0] : 'Other';
+  }
+
+  // A pill-shaped dropdown; filled in when it is narrowing or re-ordering the list.
+  function pick(name, value, options, onchange) {
+    return el('label', { class: 'pick' + (value !== options[0][0] ? ' on' : '') },
+      el('select', { 'aria-label': name, onchange: (e) => onchange(e.target.value) },
+        ...options.map(([v, text]) => el('option', { value: v, selected: v === value }, text))));
+  }
+
   function placeholder(item) {
     const text = (item.title || domainOf(item.url) || '?').trim();
     return el('div', { class: 'ph' }, el('span', {}, text.charAt(0).toUpperCase()), domainOf(item.url) || 'No photo');
@@ -420,13 +499,14 @@
     return el('article', { class: 'card' },
       pic,
       el('div', { class: 'info' },
+        el('div', { class: 'shop' }, shop || '\u00a0'),
         el('h3', {}, link ? el('a', linkAttrs, title) : title),
-        (item.price || shop) && el('div', { class: 'row' }, el('span', { class: 'price' }, item.price || ''), el('span', { class: 'shop' }, shop)),
         item.note && el('p', { class: 'note' }, item.note),
         el('div', { class: 'grow' }),
-        mine
-          ? el('div', { class: 'when' }, 'Added ' + ago(item.createdAt))
-          : el('button', { class: 'claim' + (item.claimed ? ' done' : ''), title: item.addedBy + ' will not see this', onclick: () => toggleClaim(item) },
+        (item.price || mine) && el('div', { class: 'foot' },
+          el('span', { class: 'price' }, formatPrice(item.price)),
+          mine && el('span', { class: 'when' }, ago(item.createdAt))),
+        !mine && el('button', { class: 'claim' + (item.claimed ? ' done' : ''), title: item.addedBy + ' will not see this', onclick: () => toggleClaim(item) },
               item.claimed ? '✓ Claimed by you' : 'Mark claimed'),
       ),
     );
@@ -452,24 +532,55 @@
       el('button', { class: 'tab', role: 'tab', 'aria-selected': String(t.key === tab), onclick: () => { tab = t.key; render(); } },
         t.label, el('span', { class: 'n' }, String(t.n)))));
 
-    // Claim filters appear only while looking at the other person's wishlist.
     const onTheirs = tab === 'theirs';
-    $('chips').hidden = !onTheirs;
+    const list = onTheirs ? theirList : mineList;
     if (!onTheirs) filter = 'all';
+
+    const present = CATEGORY_NAMES.filter((c) => list.some((it) => categoryOf(it) === c));
+    if (catFilter !== 'all' && !present.includes(catFilter)) catFilter = 'all';
+    const sign = currencySign(list);
+    const money = (n) => sign + n.toLocaleString('en-IN');
+    const set = (fn) => (v) => { fn(v); render(); };
+
+    const controls = [];
+    const claimChips = [];
+    // Claim filters appear only while looking at the other person's wishlist.
     if (onTheirs) {
       const chips = [
         { key: 'all', label: 'All', n: theirList.length },
         { key: 'available', label: 'Available to Gift', n: theirList.filter((it) => !it.claimed).length },
         { key: 'claimed', label: 'Claimed by Me', n: theirList.filter((it) => it.claimed).length },
       ];
-      $('chips').replaceChildren(...chips.map((c) =>
+      claimChips.push(...chips.map((c) =>
         el('button', { class: 'chip', 'aria-pressed': String(c.key === filter), onclick: () => { filter = c.key; render(); } },
           c.label, el('span', { class: 'n' }, String(c.n)))));
     }
+    controls.push(
+      pick('Category', catFilter, [['all', 'All categories'], ...present.map((c) => [c, c])], set((v) => { catFilter = v; })),
+      pick('Price range', priceBand, [['any', 'Any price'], ['0', 'Under ' + money(1000)], ['1', money(1000) + ' – ' + money(5000)],
+        ['2', money(5000) + ' – ' + money(15000)], ['3', 'Over ' + money(15000)]], set((v) => { priceBand = v; })),
+      pick('Sort', sortBy, [['new', 'Newest'], ['old', 'Oldest'], ['low', 'Price: low–high'], ['high', 'Price: high–low']], set((v) => { sortBy = v; })));
+    if (filter !== 'all' || catFilter !== 'all' || priceBand !== 'any') {
+      controls.push(el('button', { class: 'clear', onclick: () => { filter = 'all'; catFilter = 'all'; priceBand = 'any'; render(); } }, 'Clear filters'));
+    }
+    $('chips').hidden = !onTheirs;
+    $('chips').replaceChildren(...claimChips);
+    $('tools').replaceChildren(...controls);
 
-    const shown = (onTheirs ? theirList : mineList)
+    const band = priceBand === 'any' ? null : BANDS[Number(priceBand)];
+    const newest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
+    const byPrice = (dir) => (a, b) => {
+      const x = amountOf(a), y = amountOf(b);
+      if (x === null || y === null) return (x === null) - (y === null) || newest(a, b);   // no price: always last
+      return dir * (x - y) || newest(a, b);
+    };
+    const order = { new: newest, old: (a, b) => newest(b, a), low: byPrice(1), high: byPrice(-1) }[sortBy];
+
+    const shown = list
       .filter((it) => filter === 'all' || (filter === 'claimed') === !!it.claimed)
-      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      .filter((it) => catFilter === 'all' || categoryOf(it) === catFilter)
+      .filter((it) => { if (!band) return true; const a = amountOf(it); return a !== null && a >= band[0] && a < band[1]; })
+      .sort(order);
 
     if (loading && !items.length) {             // first load: placeholders instead of a false "empty" message
       $('grid').replaceChildren(skeleton(), skeleton(), skeleton(), skeleton());
@@ -478,7 +589,8 @@
     }
     $('grid').replaceChildren(...shown.map(card));
     $('empty').hidden = shown.length > 0;
-    $('emptyText').textContent = !onTheirs
+    $('emptyText').textContent = (catFilter !== 'all' || priceBand !== 'any') && list.length ? 'Nothing matches these filters.'
+      : !onTheirs
       ? 'Your wishlist is empty. Tap “+ Add idea” and paste a product link.'
       : filter === 'claimed' ? 'You have not claimed anything yet.'
       : filter === 'available' && theirList.length ? 'Everything here is already claimed.'
@@ -550,6 +662,8 @@
     $('fprice').value = item?.price || '';
     $('fimage').value = item?.image || '';
     $('fnote').value = item?.note || '';
+    $('fcat').replaceChildren(el('option', { value: '' }, 'Auto-detect from title'), ...CATEGORY_NAMES.map((c) => el('option', { value: c }, c)));
+    $('fcat').value = CATEGORY_NAMES.includes(item?.category) ? item.category : '';
     for (const id of Object.values(AUTO)) delete $(id).dataset.auto;
     $('fstatus').textContent = '';
     $('formErr').textContent = '';
@@ -582,7 +696,7 @@
         const field = $(id);
         // Fill empty fields and ones we filled ourselves; keep anything typed by hand.
         if (meta[key] && (force || !field.value.trim() || field.dataset.auto)) {
-          field.value = meta[key];
+          field.value = key === 'price' ? formatPrice(meta[key]) : meta[key];
           field.dataset.auto = '1';
           filled++;
         }
@@ -613,9 +727,10 @@
     const item = {
       url: $('furl').value.trim(),
       title: $('ftitle').value.trim(),
-      price: $('fprice').value.trim(),
+      price: formatPrice($('fprice').value),
       image: $('fimage').value.trim(),
       note: $('fnote').value.trim(),
+      category: $('fcat').value,
     };
     if (item.url && !isHttp(item.url)) { $('formErr').textContent = 'Link must start with http:// or https://'; return; }
     if (item.image && !isHttp(item.image)) { $('formErr').textContent = 'Image link must start with http:// or https://'; return; }

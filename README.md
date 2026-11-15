@@ -12,6 +12,8 @@ A private gift wishlist for two. Free to run:
 - **Auto-filled product cards** — tap **+ Add Idea**, paste a product link, and the photo, title and
   price fill in by themselves. Every field can be overridden, including a custom image link for
   stores that block lookups.
+- **Sort and filter** — by category (picked in the form, or guessed from the title), price range,
+  newest/oldest and price. Prices show in one format (`₹12,495`) however the shop wrote them.
 - **Secret claiming** — on your partner's wishlist you can mark items **🎁 Claimed / Bought** and
   filter by **Available to Gift** or **Claimed by Me**. On your own wishlist no claim badges or
   filters exist, and the backend never sends claim data for your own items. Editing an item (note,

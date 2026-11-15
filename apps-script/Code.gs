@@ -17,7 +17,7 @@
 const PASSCODE = 'CHANGE-ME';
 
 const SHEET_NAME = 'Items';
-const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy'];
+const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy', 'category'];
 
 function doGet() {
   return json({ ok: true, message: 'Wishlist backend is running.' });
@@ -74,6 +74,9 @@ function getSheet() {
     sh.getRange(1, 1, sh.getMaxRows(), HEADERS.length).setNumberFormat('@');
     sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
     sh.setFrozenRows(1);
+  } else if (String(sh.getRange(1, HEADERS.length).getValue()).trim() !== HEADERS[HEADERS.length - 1]) {
+    // Sheet made by an older version: add the newer column headings.
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
   }
   return sh;
 }
@@ -115,7 +118,7 @@ function same(a, b) {
 function publicItem(o, user) {
   const mine = same(o.addedBy, user);
   return {
-    id: o.id, url: o.url, title: o.title, image: o.image, price: o.price, note: o.note,
+    id: o.id, url: o.url, title: o.title, image: o.image, price: o.price, note: o.note, category: o.category,
     addedBy: o.addedBy, createdAt: Number(o.createdAt) || 0,
     claimed: mine ? false : !!o.claimedBy,
     claimedBy: mine ? '' : o.claimedBy
@@ -133,7 +136,8 @@ function fields(item) {
     title: clean(item.title, 200),
     image: httpUrl(item.image),
     price: clean(item.price, 40),
-    note: clean(item.note, 500)
+    note: clean(item.note, 500),
+    category: clean(item.category, 30)
   };
 }
 
@@ -164,7 +168,7 @@ function updateItem(id, item, user) {
   if ('title' in item || 'url' in item) {
     const f = fields(item);
     if (!f.title && !f.url) return { ok: false, error: 'Add a link or a title.' };
-    o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note;
+    o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note; o.category = f.category;
   }
   // Edits never touch the claim; only the other person can set or clear it.
   if ('claimed' in item && !same(o.addedBy, user)) o.claimedBy = item.claimed ? user : '';
