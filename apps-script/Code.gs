@@ -11,7 +11,7 @@
 const PASSCODE = 'CHANGE-ME';
 
 const SHEET_NAME = 'Items';
-const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'gifted'];
+const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy'];
 
 function doGet() {
   return json({ ok: true, message: 'Wishlist backend is running.' });
@@ -105,12 +105,14 @@ function same(a, b) {
   return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
 }
 
-// The person who wished for an item never learns whether it was bought.
+// The person who wished for an item never learns whether it was claimed.
 function publicItem(o, user) {
+  const mine = same(o.addedBy, user);
   return {
     id: o.id, url: o.url, title: o.title, image: o.image, price: o.price, note: o.note,
     addedBy: o.addedBy, createdAt: Number(o.createdAt) || 0,
-    gifted: same(o.addedBy, user) ? false : o.gifted === '1'
+    claimed: mine ? false : !!o.claimedBy,
+    claimedBy: mine ? '' : o.claimedBy
   };
 }
 
@@ -135,7 +137,7 @@ function addItem(item, user) {
   o.id = Utilities.getUuid();
   o.addedBy = user;
   o.createdAt = String(Date.now());
-  o.gifted = '';
+  o.claimedBy = '';
   getSheet().appendRow(toRow(o));
   return { ok: true, item: publicItem(o, user) };
 }
@@ -158,7 +160,8 @@ function updateItem(id, item, user) {
     if (!f.title && !f.url) return { ok: false, error: 'Add a link or a title.' };
     o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note;
   }
-  if ('gifted' in item && !same(o.addedBy, user)) o.gifted = item.gifted ? '1' : '';
+  // Edits never touch the claim; only the other person can set or clear it.
+  if ('claimed' in item && !same(o.addedBy, user)) o.claimedBy = item.claimed ? user : '';
   sh.getRange(hit.row, 1, 1, HEADERS.length).setValues([toRow(o)]);
   return { ok: true, item: publicItem(o, user) };
 }
