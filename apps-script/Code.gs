@@ -4,6 +4,10 @@
  *
  * SETUP: change PASSCODE below, then Deploy > New deployment > Web app
  *        (Execute as: Me, Who has access: Anyone). See README.md.
+ *
+ * The next line limits this script to the one Sheet it is attached to,
+ * instead of every spreadsheet in your Google account. Keep it.
+ * @OnlyCurrentDoc
  */
 
 // Shared secret for you two. Change it here in the Apps Script editor ONLY.
