@@ -580,7 +580,6 @@
   .menu { transform-origin: top right; animation: menu-in .13s ease-out backwards; }
   .panel:not([hidden]) { animation: drop-in .18s ease-out backwards; }
   .toast:not([hidden]) { animation: toast-in .2s ease-out backwards; }
-  #app:not([hidden]), #settingsPage:not([hidden]), #setup:not([hidden]) { animation: fade-in .18s ease-out backwards; }
 
   /* press feedback: a small, fast squeeze */
   button, .steps a.small { transition: transform .09s ease-out, background-color .15s, color .15s, border-color .15s, box-shadow .18s; -webkit-tap-highlight-color: transparent; }
@@ -632,6 +631,28 @@
     -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
   }
   @media (min-width: 600px) { .empty-msg { top: 150px; } }
+
+  /* ===== Styled dropdowns (replace the system popup for name and currency) ===== */
+  .has-btn { padding: 0; }
+  header.top { position: relative; z-index: 20; }                 /* an open menu must sit above the content that follows */
+  .box:has(.dd-menu) { position: relative; z-index: 20; }
+  .pick-btn {
+    background: none; border: 0; border-radius: 999px; min-height: 44px; padding: 0 28px 0 16px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--ink); max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .dd-menu {
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; min-width: max(100%, 156px); padding: 5px;
+    display: flex; flex-direction: column; border-radius: 14px;
+    background: color-mix(in srgb, var(--surface) 95%, transparent); border: 1px solid var(--glass-edge); box-shadow: var(--pop);
+    transform-origin: top right; animation: menu-in .13s ease-out backwards;
+  }
+  .dd-menu button {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 0 12px;
+    background: none; border: 0; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--ink); text-align: left; white-space: nowrap;
+  }
+  .dd-menu button[aria-selected="true"] { font-weight: 700; }
+  .dd-menu button[aria-selected="true"]::after { content: "✓"; color: var(--primary); font-weight: 700; }
+  @media (hover: hover) { .dd-menu button:hover { background: var(--glass-chip); } }
 </style>
 </head>
 <body>
@@ -1211,6 +1232,7 @@
         priceGroup(scale),
         reset);
     }
+    refreshPicks();
     drawGrid();
   }
 
@@ -1666,6 +1688,7 @@
 
     // Preferences
     $('currency2').value = cur;
+    refreshPicks();
 
     // Connection
     const id = (settings.api.match(/\/s\/([\w-]+)\/exec$/) || [])[1] || '';
@@ -1750,6 +1773,7 @@
     cur = code;
     $('currency').value = code;
     $('currency2').value = code;
+    refreshPicks();
     priceLo = 0; priceHi = null;
   }
   $('currency').addEventListener('change', (e) => { setCurrency(e.target.value); render(); });
@@ -1813,6 +1837,45 @@
   }
 
   $('addBtn').addEventListener('click', () => openForm(null));
+
+  // Styled dropdowns. The <select> stays as the source of truth (so the rest of the code is unchanged);
+  // a button and an in-app menu replace the operating system's popup.
+  const picks = [];
+  function enhance(select) {
+    const wrap = select.parentElement;
+    const btn = el('button', { type: 'button', class: 'pick-btn', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': select.getAttribute('aria-label') });
+    select.hidden = true;
+    wrap.classList.add('has-btn');
+    wrap.append(btn);
+    const sync = () => { btn.textContent = select.selectedOptions[0] ? select.selectedOptions[0].textContent : ''; };
+    const close = () => { const m = wrap.querySelector('.dd-menu'); if (m) m.remove(); btn.setAttribute('aria-expanded', 'false'); };
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const wasOpen = btn.getAttribute('aria-expanded') === 'true';
+      closePicks();
+      closeMenus();
+      if (wasOpen) return;
+      btn.setAttribute('aria-expanded', 'true');
+      wrap.append(el('div', { class: 'dd-menu', role: 'listbox' }, ...[...select.options].map((o) =>
+        el('button', { type: 'button', role: 'option', 'aria-selected': String(o.selected), onclick: (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          close();
+          if (select.value === o.value) return;
+          select.value = o.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          sync();
+        } }, o.textContent))));
+    });
+    picks.push({ sync, close });
+    sync();
+  }
+  function closePicks() { picks.forEach((p) => p.close()); }
+  function refreshPicks() { picks.forEach((p) => p.sync()); }
+  document.addEventListener('click', closePicks);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicks(); });
+  ['iam', 'currency', 'currency2'].forEach((id) => enhance($(id)));
 
   // A link shared from another Android app arrives as #share=<base64 json> (see sw.js).
   function readShare() {
