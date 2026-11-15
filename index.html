@@ -7,6 +7,10 @@
 <meta name="referrer" content="no-referrer">
 <title>Gifter</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><g transform='translate(3.800 3.400) scale(.760)'><path d='M16 11.8c-3.9-2.5-5.7-4.3-5.7-6.3a2.9 2.9 0 0 1 5.7-.9 2.9 2.9 0 0 1 5.7.9c0 2-1.8 3.8-5.7 6.3z' fill='%23c9c7ff'/><path d='M5.8 11.5h8.6v5.8H5.8a2.3 2.3 0 0 1-2.3-2.3v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z' fill='white'/></g></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f7f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111118" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet">
 <style>
@@ -281,6 +285,9 @@
   .settings p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
   .settings .hint { margin-top: 10px; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .setrow + .setrow { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .banner.install { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--primary-soft); color: var(--ink); }
+  .banner-btns { display: flex; gap: 8px; margin-left: auto; }
   .setrow > div { min-width: 0; }
   .small { padding: 9px 14px; font-size: 13px; border-radius: 10px; flex: none; }
   .wide { width: 100%; margin-top: 14px; }
@@ -414,6 +421,10 @@
 
   <h2 class="sec">This device</h2>
   <div class="box">
+    <div class="setrow" id="installRow" hidden>
+      <div><h3>Install as an app</h3><p>Home-screen icon, opens full screen, and Share → Gifter from other apps.</p></div>
+      <button type="button" class="primary small" id="installBtn">Install</button>
+    </div>
     <div class="setrow">
       <div><h3>Disconnect</h3><p>Forget the connection and names saved in this browser. Your Google Sheet is not touched.</p></div>
       <button type="button" class="ghost small danger" id="resetBtn">Disconnect</button>
@@ -431,6 +442,10 @@
     <button class="round" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
+  <div class="banner install" id="installBanner" hidden>
+    <span>Install Gifter on this phone: home-screen icon, and Share → Gifter from any shopping app.</span>
+    <span class="banner-btns"><button type="button" class="primary small" id="installNow">Install</button><button type="button" class="ghost small" id="installLater">Not now</button></span>
+  </div>
   <section class="hero">
     <svg class="hero-art" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.8c-3.9-2.5-5.7-4.3-5.7-6.3a2.9 2.9 0 0 1 5.7-.9 2.9 2.9 0 0 1 5.7.9c0 2-1.8 3.8-5.7 6.3z" fill="var(--logo-heart)"/><path d="M5.8 11.5h8.6v5.8H5.8a2.3 2.3 0 0 1-2.3-2.3v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z" fill="currentColor"/></svg>
     <p class="eyebrow" id="heroEyebrow"></p>
@@ -485,7 +500,7 @@
 
 <script>
 (() => {
-  const KEY = { settings: 'gifter.settings', cache: 'gifter.cache', demo: 'gifter.demo', view: 'gifter.view', currency: 'gifter.currency', rates: 'gifter.rates' };
+  const KEY = { settings: 'gifter.settings', cache: 'gifter.cache', demo: 'gifter.demo', installLater: 'gifter.installLater', view: 'gifter.view', currency: 'gifter.currency', rates: 'gifter.rates' };
   const API_RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[\w-]+\/exec$/;
   const $ = (id) => document.getElementById(id);
 
@@ -1287,6 +1302,49 @@
   }
 
   $('addBtn').addEventListener('click', () => openForm(null));
+
+  // A link shared from another Android app arrives as #share=<base64 json> (see sw.js).
+  function readShare() {
+    const m = location.hash.match(/^#share=([\w-]+)$/);
+    if (!m) return null;
+    history.replaceState(null, '', location.pathname + location.search);
+    try {
+      const d = JSON.parse(b64d(m[1]));
+      const parts = [d.url, d.text, d.title].map((v) => (typeof v === 'string' ? v : ''));
+      const link = (parts.join(' ').match(/https?:\/\/[^\s<>"']+/i) || [''])[0];
+      // Shopping apps put the link inside the text; whatever words are left make a first guess at the title.
+      const words = (parts[2] || parts[1]).replace(/https?:\/\/\S+/gi, '').replace(/\s+/g, ' ').trim().slice(0, 200);
+      return link || words ? { link, words } : null;
+    } catch { return null; }
+  }
+  function openShared(shared) {
+    tab = 'mine';
+    render();
+    openForm(null);
+    $('furl').value = shared.link;
+    if (shared.words) { $('ftitle').value = shared.words; $('ftitle').dataset.auto = '1'; }   // replaced if the page gives a real title
+    if (shared.link) fetchDetails(false);
+  }
+
+  // Install: Android Chrome hands us this event when the app can be installed.
+  let installEvent = null;
+  const showInstall = () => {
+    $('installRow').hidden = !installEvent;
+    $('installBanner').hidden = !installEvent || store.get(KEY.installLater, false);
+  };
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvent = e; showInstall(); });
+  window.addEventListener('appinstalled', () => { installEvent = null; showInstall(); });
+  const install = async () => {
+    if (!installEvent) return;
+    installEvent.prompt();
+    await installEvent.userChoice;
+    installEvent = null;                        // the browser allows one prompt per event
+    showInstall();
+  };
+  $('installNow').addEventListener('click', install);
+  $('installBtn').addEventListener('click', install);
+  $('installLater').addEventListener('click', () => { store.set(KEY.installLater, true); showInstall(); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   loadRates();
   narrow.addEventListener('change', () => { if (settings && !$('app').hidden) render(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && settings && !$('app').hidden) load(); });
@@ -1302,6 +1360,8 @@
     else $('spass').focus();
   } else if (settings) {
     showApp();
+    const shared = readShare();
+    if (shared) openShared(shared);
   } else {
     openSetup();
   }

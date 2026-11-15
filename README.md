@@ -68,6 +68,16 @@ and sets their profile. By default the link does not contain the passcode (they 
 
 On a phone: browser menu → **Add to Home Screen** to get an app icon.
 
+## Install on your phone
+
+- **Android (Chrome):** open the site and tap **Install** in the banner (or ⚙ Settings → This
+  device → Install, or Chrome menu → *Add to Home screen* / *Install app*). Gifter then opens full
+  screen from its own icon, and appears in the Android share sheet: in any shopping app tap
+  **Share → Gifter** and the Add idea form opens with the link filled in.
+- **iPhone (Safari):** Share → **Add to Home Screen**. iOS does not let web apps appear in the
+  share sheet, so copy the product link and paste it into Add idea.
+- The app shell opens without a connection; the list itself needs the internet to refresh.
+
 ## Notes
 
 - Some stores (Amazon especially) block automatic lookups. Then type a title and, for a photo,
