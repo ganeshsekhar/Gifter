@@ -1,13 +1,15 @@
 /**
+ * @OnlyCurrentDoc
+ */
+// The block above limits this script to the one Sheet it is attached to,
+// instead of every spreadsheet in your Google account. Keep it as the first lines.
+
+/**
  * Wishlist backend — Google Apps Script bound to a Google Sheet.
  * The Sheet is the database. The web page (GitHub Pages) talks to this script.
  *
  * SETUP: change PASSCODE below, then Deploy > New deployment > Web app
  *        (Execute as: Me, Who has access: Anyone). See README.md.
- *
- * The next line limits this script to the one Sheet it is attached to,
- * instead of every spreadsheet in your Google account. Keep it.
- * @OnlyCurrentDoc
  */
 
 // Shared secret for you two. Change it here in the Apps Script editor ONLY.
