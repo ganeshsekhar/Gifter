@@ -175,13 +175,15 @@
   .list .media { border-radius: 16px 0 0 16px; }
   .list .info { padding: 12px 14px; }
   .list .info h3 { min-height: 0; font-size: 14.5px; }
-  .list .more { top: 6px; left: 6px; right: auto; width: 28px; height: 28px; }
-  .list .menu { left: 6px; right: auto; top: 40px; }
+  /* In a list the menu button sits on the card, top right, clear of the photo */
+  .list .more { top: 6px; right: 6px; background: transparent; box-shadow: none; color: var(--muted); font-size: 18px; }
+  .list .menu { top: 44px; right: 8px; }
+  .list .shoprow { padding-right: 34px; }
   .list .badge { top: auto; left: 6px; bottom: 6px; }
   .list .claim { align-self: flex-start; padding: 7px 14px; }
   .list.grid .skel .pic { border-radius: 16px 0 0 16px; }
 
-  .card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; transition: transform .18s ease, box-shadow .18s ease; }
+  .card { position: relative; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; transition: transform .18s ease, box-shadow .18s ease; }
   .media img { transition: transform .35s ease; }
   @media (hover: hover) {
     .card:hover { transform: translateY(-3px); box-shadow: var(--lift); }
@@ -340,6 +342,25 @@
     position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--ink); color: var(--bg);
     padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: calc(100vw - 32px); z-index: 10;
   }
+
+  /* Comfortable tap targets: every control is at least 44px to the finger */
+  button, .menu a, .pick select { min-height: 44px; }
+  .menu a { display: flex; align-items: center; }
+  .me { min-height: 44px; }
+  .me select { min-height: 36px; }
+  .round { width: 44px; height: 44px; }
+  .filter-btn { min-width: 44px; justify-content: center; }
+  .view { padding: 0 3px; }
+  .opt { padding: 0 16px; }
+  .small { padding: 0 16px; }
+  .tab { padding: 0 6px; }
+  .claim { padding: 0 14px; }
+  .clear { padding: 0 2px; }
+  /* the ⋯ button stays small to the eye; an invisible halo makes it 48px to the finger */
+  .more { width: 36px; height: 36px; min-height: 0; }
+  .more::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+  .menu { top: 50px; }
+  .list .menu { top: 46px; }
 </style>
 </head>
 <body>
@@ -750,16 +771,16 @@
         closeMenus();
         if (wasOpen) return;
         more.setAttribute('aria-expanded', 'true');
-        pic.append(el('div', { class: 'menu', role: 'menu' },
+        more.after(el('div', { class: 'menu', role: 'menu' },
           link && el('a', { role: 'menuitem', ...linkAttrs }, 'Open link'),
           el('button', { role: 'menuitem', onclick: () => openForm(item) }, 'Edit'),
           el('button', { role: 'menuitem', class: 'danger', onclick: () => removeItem(item) }, 'Delete')));
       },
     }, '⋯');
-    pic.append(more);
 
     return el('article', { class: 'card' },
       pic,
+      more,
       el('div', { class: 'info' },
         el('div', { class: 'shoprow' }, el('span', { class: 'shop' }, shop || '\u00a0'),
           needOf(item) >= 4 && el('span', { class: 'needtag', title: NEED_LABELS[needOf(item)] }, 'Need')),
