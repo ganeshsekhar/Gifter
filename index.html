@@ -278,50 +278,47 @@
   .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
   .hint a { color: var(--primary); font-weight: 600; }
 
-  /* First-visit page: what Gifter is, then the connection form with its guide built in */
-  .welcome { max-width: 760px; margin: 0 auto; padding: 0 16px 64px; }
-  .w-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0 4px; }
-  .w-hero { padding: 26px 0 4px; }
-  .w-hero h1 { font: 600 clamp(36px, 9vw, 58px)/1.04 "Fraunces", Georgia, serif; letter-spacing: -.025em; margin: 8px 0 14px; }
-  .w-lead { margin: 0 0 22px; font-size: 16.500px; line-height: 1.550; color: var(--muted); max-width: 54ch; }
-  .w-cta { display: flex; flex-wrap: wrap; gap: 10px; }
-  .w-cta button { padding: 0 22px; min-height: 48px; font-size: 15px; }
+  /* First-visit page: one frame — short pitch on one side, the real app in phone frames on the other */
+  .welcome {
+    min-height: 100dvh; max-width: 1120px; margin: 0 auto; padding: 24px 28px; overflow: hidden;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center;
+  }
+  .w-copy h1 { font: 600 clamp(38px, 5.200vw, 64px)/1.030 "Fraunces", Georgia, serif; letter-spacing: -.025em; margin: 10px 0 14px; }
+  .w-lead { margin: 0 0 20px; font-size: 17px; line-height: 1.500; color: var(--muted); max-width: 34ch; }
+  .w-points { list-style: none; margin: 0 0 26px; padding: 0; display: grid; gap: 10px; font-size: 14.500px; font-weight: 500; }
+  .w-points li { display: flex; align-items: center; gap: 10px; }
+  .ico { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-content: center; background: var(--primary-soft); color: var(--primary); }
+  .ico svg { width: 16px; height: 16px; display: block; }
+  #getStarted { min-height: 52px; padding: 0 32px; font-size: 16px; border-radius: 14px; }
   .w-fine { margin: 14px 0 0; font-size: 12.500px; color: var(--muted); }
-  .w-sample { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 30px 0 4px; }
-  .mini { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
-  .mini-pic { position: relative; aspect-ratio: 5 / 4; display: grid; place-content: center; background: color-mix(in srgb, var(--tint) 16%, var(--surface)); }
-  .mini-pic svg { width: 38px; height: 38px; fill: var(--tint); }
-  .mini-pic .badge { top: 6px; left: 6px; font-size: 10px; padding: 3px 7px; }
-  .mini-info { display: grid; gap: 2px; padding: 9px 10px 11px; font-size: 12.500px; min-width: 0; }
-  .mini-info > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mini-info .shop { display: flex; justify-content: space-between; gap: 6px; font-size: 9.500px; }
-  .mini-info .needtag { font-style: normal; font-size: 9.500px; }
-  .mini-info b { font-weight: 500; }
-  .w-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  @media (max-width: 520px) { .w-grid { grid-template-columns: minmax(0, 1fr); } }
-  .feat { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); }
-  .ico { width: 38px; height: 38px; border-radius: 50%; display: grid; place-content: center; margin-bottom: 10px; background: var(--primary-soft); color: var(--primary); }
-  .ico svg { width: 18px; height: 18px; display: block; }
-  .feat h3 { font-size: 15px; letter-spacing: -.01em; }
-  .feat p { margin: 4px 0 0; font-size: 13.500px; color: var(--muted); }
-  .w-steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .w-steps li { counter-increment: step; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); }
-  .w-steps li::before { content: counter(step); width: 32px; height: 32px; border-radius: 50%; display: grid; place-content: center; background: var(--primary); color: var(--on-primary); font-weight: 700; font-size: 14px; }
-  .w-steps b { display: block; font-size: 15px; }
-  .w-steps span { display: block; margin-top: 2px; font-size: 13.500px; color: var(--muted); }
-  .welcome .sec { margin-top: 34px; scroll-margin-top: 12px; }
-  .welcome #setupLead { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
-  .welcome .btns { display: flex; margin-top: 18px; }
-  .welcome .btns .primary { flex: 1; min-height: 48px; }
+  .w-shots { position: relative; height: min(84dvh, 700px); }
+  .phone {
+    position: absolute; aspect-ratio: 390 / 844; border-radius: 40px; border: 9px solid #0c0c12; background: #0c0c12; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(20, 20, 70, .30), 0 0 0 1px rgba(255, 255, 255, .08);
+  }
+  .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .phone.front { height: 92%; left: 4%; top: 2%; transform: rotate(-5deg); z-index: 2; }
+  .phone.back { height: 82%; right: 3%; top: 11%; transform: rotate(6deg); }
+  @media (max-width: 820px) {
+    .welcome { height: 100dvh; min-height: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 22px; padding: 18px 22px 0; align-items: start; }
+    .brand.big { font-size: 27px; margin-bottom: 6px; padding-top: 4px; }
+    .w-copy h1 { font-size: clamp(32px, 9.500vw, 44px); margin: 6px 0 10px; }
+    .w-lead { font-size: 15.500px; margin-bottom: 16px; }
+    .w-points { display: none; }
+    .w-fine { margin-top: 10px; }
+    .w-shots { height: 100%; min-height: 200px; }
+    .phone { border-width: 7px; border-radius: 30px; height: auto; }
+    .phone.front { width: 58%; left: 2%; top: 4px; }
+    .phone.back { width: 52%; right: 1%; top: 34px; }
+  }
+  #setupLead { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+  #connectDlg .dlg-actions .primary { min-height: 48px; }
   .guide { margin-top: 10px; padding: 0 14px; border-radius: 12px; background: var(--soft); }
   .guide summary { cursor: pointer; padding: 13px 0; font-size: 13.500px; font-weight: 600; color: var(--primary); }
   .guide ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 9px; font-size: 13.500px; }
   .guide a { color: var(--primary); font-weight: 600; }
   .guide code { font-size: 12.500px; padding: 1px 5px; border-radius: 5px; background: var(--surface); }
   .guide .hint { margin: 0 0 14px; }
-  .w-foot { margin: 22px 0 0; text-align: center; font-size: 12.500px; color: var(--muted); }
-  .w-foot a { color: var(--primary); font-weight: 600; }
-  .welcome.invited .w-intro { display: none; }          /* arrived by setup link: skip the pitch */
   .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
   .box { background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
   .box + .box { margin-top: 12px; }
@@ -433,48 +430,30 @@
 
 <!-- First-run setup, and Settings later -->
 <section class="welcome" id="setup" hidden>
-  <header class="w-top">
-    <div class="brand" role="img" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
-    <button type="button" class="ghost small" data-goto="connect">Connect</button>
-  </header>
-
-  <div class="w-intro">
-    <div class="w-hero">
-      <p class="eyebrow">A private wishlist for two</p>
-      <h1>Never guess a gift again.</h1>
-      <p class="w-lead">Gifter is a shared wishlist for you and your partner. Save things you’d love from any shop. They see your list, you see theirs — and whatever one of you quietly buys stays a surprise.</p>
-      <div class="w-cta">
-        <button type="button" class="primary" data-goto="connect">Get started</button>
-        <button type="button" class="ghost" id="tryDemo">Try the demo</button>
-      </div>
-      <p class="w-fine">Free. No sign-up. Your ideas live in your own Google Sheet.</p>
-    </div>
-
-    <div class="w-sample" aria-hidden="true">
-      <div class="mini" style="--tint:#4f46e5"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg></div><div class="mini-info"><span class="shop">myntra.com</span><b>Linen shirt, olive</b><span class="price">₹1,899</span></div></div>
-      <div class="mini" style="--tint:#d6457a"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg><span class="badge">Claimed</span></div><div class="mini-info"><span class="shop">amazon.in</span><b>Gold dial watch</b><span class="price">₹12,495</span></div></div>
-      <div class="mini" style="--tint:#1f9d6b"><div class="mini-pic"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11.800c-3.900-2.500-5.700-4.300-5.700-6.300a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z" opacity=".55"/><path d="M5.800 11.500h8.600v5.800H5.800a2.300 2.300 0 0 1-2.300-2.300v-1.200a2.300 2.300 0 0 1 2.300-2.300zM17.600 11.500h8.600a2.300 2.300 0 0 1 2.300 2.300V15a2.300 2.300 0 0 1-2.300 2.300h-8.600zM8.500 18.600h5.900v10.900H8.500a3.200 3.200 0 0 1-3.200-3.200v-4.500a3.200 3.200 0 0 1 3.200-3.200zM17.600 18.600h5.900a3.200 3.200 0 0 1 3.200 3.200v4.500a3.200 3.200 0 0 1-3.200 3.200h-5.900z"/></svg></div><div class="mini-info"><span class="shop">daivik.in <i class="needtag">Need</i></span><b>Kemp studs</b><span class="price">₹1,099</span></div></div>
-    </div>
-
-    <h2 class="sec">What you get</h2>
-    <div class="w-grid">
-      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.500 9.500l3-3M7 4.500l1.200-1.200a2.800 2.800 0 0 1 4 4L11 8.500M9 11.500l-1.200 1.200a2.800 2.800 0 0 1-4-4L5 7.500"/></svg></span><h3>Paste a link, get a card</h3><p>Photo, name and price fill in by themselves. On Android, share straight from any shopping app.</p></div>
-      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8s2.200-4 6-4 6 4 6 4-2.200 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="1.800"/><path d="M3 13L13 3"/></svg></span><h3>Surprises stay surprises</h3><p>Mark what you’ve bought. Your partner never sees which of their wishes are claimed.</p></div>
-      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.500h7M12.500 4.500H14M2 11.500h1.500M7 11.500h7"/><circle cx="10.700" cy="4.500" r="1.800"/><circle cx="5.200" cy="11.500" r="1.800"/></svg></span><h3>Want or need</h3><p>Every idea says how much it matters, so the right gift is easy to pick. Sort and filter by price and category.</p></div>
-      <div class="feat"><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.800l5 1.800v4c0 3-2.100 5.300-5 6.600-2.900-1.300-5-3.600-5-6.600v-4z"/><path d="M5.800 8l1.600 1.600 2.900-3"/></svg></span><h3>Private and yours</h3><p>No account with us and nothing on our servers. Everything sits in a Google Sheet you own, behind your passcode.</p></div>
-    </div>
-
-    <h2 class="sec">How it works</h2>
-    <ol class="w-steps">
-      <li><div><b>One of you sets it up</b><span>Create a free Google Sheet and paste in a small script. About 10 minutes, once. The steps are below.</span></div></li>
-      <li><div><b>Invite your partner</b><span>Send one setup link from Settings. They open it and they’re in.</span></div></li>
-      <li><div><b>Add ideas whenever you spot them</b><span>Install Gifter on your phone and keep adding. Next birthday is sorted.</span></div></li>
-    </ol>
+  <div class="w-copy">
+    <div class="brand big" role="img" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></div>
+    <h1>Never guess a gift again.</h1>
+    <p class="w-lead">A private wishlist for you and your partner. Save what you’d love; claim gifts in secret.</p>
+    <ul class="w-points">
+      <li><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.500 9.500l3-3M7 4.500l1.200-1.200a2.800 2.800 0 0 1 4 4L11 8.500M9 11.500l-1.200 1.200a2.800 2.800 0 0 1-4-4L5 7.500"/></svg></span>Paste a link, get a card</li>
+      <li><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8s2.200-4 6-4 6 4 6 4-2.200 4-6 4-6-4-6-4z"/><circle cx="8" cy="8" r="1.800"/><path d="M3 13L13 3"/></svg></span>Surprises stay hidden</li>
+      <li><span class="ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.800l5 1.800v4c0 3-2.100 5.300-5 6.600-2.900-1.300-5-3.600-5-6.600v-4z"/><path d="M5.800 8l1.600 1.600 2.900-3"/></svg></span>Lives in your own Google Sheet</li>
+    </ul>
+    <button type="button" class="primary" id="getStarted">Get started</button>
+    <p class="w-fine">Free · no sign-up · 10-minute setup</p>
   </div>
+  <div class="w-shots" aria-hidden="true">
+    <div class="phone back"><img src="shots/grid-dark.jpg" alt="" width="780" height="1688"></div>
+    <div class="phone front"><img src="shots/list-light.jpg" alt="" width="780" height="1688"></div>
+  </div>
+</section>
 
-  <h2 class="sec" id="connect"><span id="connectTitle">Connect this device</span></h2>
-  <form class="box" id="setupForm">
-    <p id="setupLead">Enter your names, then the script address and passcode from your Google Sheet.</p>
+<dialog id="connectDlg">
+  <form id="setupForm" method="dialog">
+    <div class="sheet-top">
+      <div class="sheet-title"><h2 id="connectTitle">Connect this device</h2><button type="button" class="xbtn" id="connectX" aria-label="Close">✕</button></div>
+    </div>
+    <p id="setupLead"></p>
     <div class="cols">
       <div><label for="sme">Your name</label><input id="sme" maxlength="40" autocomplete="off" required></div>
       <div><label for="spartner">Partner's name</label><input id="spartner" maxlength="40" autocomplete="off" required></div>
@@ -496,12 +475,11 @@
     </details>
     <label for="spass">Shared passcode</label>
     <input id="spass" type="password" autocomplete="off">
-    <p class="hint">Saved only in this browser. Leave the URL and passcode blank to try demo mode.</p>
+    <p class="hint">Saved only in this browser.</p>
     <div class="err" id="setupErr" role="alert"></div>
-    <div class="btns"><button class="primary" id="setupBtn">Connect</button></div>
+    <div class="dlg-actions"><button class="primary" id="setupBtn">Connect</button></div>
   </form>
-  <p class="w-foot">Free and open source · <a href="https://github.com/ganeshsekhar/Gifter" target="_blank" rel="noopener">Code on GitHub</a></p>
-</section>
+</dialog>
 
 <section class="settings" id="settingsPage" hidden>
   <header class="page-head">
@@ -1331,7 +1309,10 @@
 
   const GUIDE = 'https://github.com/ganeshsekhar/Gifter#setup-about-10-minutes-once';
   const URL_HELP = 'That is not an Apps Script web app URL. It looks like https://script.google.com/macros/s/…/exec';
-  const show = (id) => { for (const s of ['app', 'setup', 'settingsPage']) $(s).hidden = s !== id; };
+  const show = (id) => {
+    for (const s of ['app', 'setup', 'settingsPage']) $(s).hidden = s !== id;
+    if (id !== 'setup' && $('connectDlg').open) $('connectDlg').close();
+  };
 
   function showApp() {
     show('app');
@@ -1347,17 +1328,30 @@
   function openSetup(message, prefill) {
     show('setup');
     window.scrollTo(0, 0);
-    $('setup').classList.toggle('invited', !!prefill);
-    $('connectTitle').textContent = prefill ? 'You’re invited' : 'Connect this device';
-    $('setupLead').textContent = prefill
-      ? 'Your partner already set this up. Check the names, enter the passcode, and you’re in.'
-      : 'Enter your names, then the script address and passcode from your Google Sheet.';
     $('sme').value = prefill ? prefill.names[0] : '';
     $('spartner').value = prefill ? prefill.names[1] : '';
     $('sapi').value = prefill?.api || '';
     $('spass').value = prefill?.passcode || '';
+    $('connectTitle').textContent = prefill ? 'You’re invited' : 'Connect this device';
+    $('setupLead').textContent = prefill
+      ? 'Your partner already set this up. Check the names, enter the passcode, and you’re in.'
+      : 'Enter your names, then the script address and passcode from your Google Sheet.';
     $('setupErr').textContent = message || '';
+    if (prefill || message) openConnect();        // setup link, or something to fix: go straight to the form
+    else if ($('connectDlg').open) $('connectDlg').close();
   }
+  function openConnect() {
+    if (!$('connectDlg').open) $('connectDlg').showModal();
+    $('connectDlg').scrollTop = 0;
+  }
+  $('getStarted').addEventListener('click', () => {
+    $('setupErr').textContent = '';
+    openConnect();
+    $('sme').focus({ preventScroll: true });
+    requestAnimationFrame(() => { $('connectDlg').scrollTop = 0; });   // keep the intro line visible under the header
+  });
+  $('connectX').addEventListener('click', () => $('connectDlg').close());
+  $('connectDlg').addEventListener('click', (e) => { if (e.target === $('connectDlg')) $('connectDlg').close(); });
 
   $('setupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1366,10 +1360,11 @@
     const say = (m) => { $('setupErr').textContent = m; };
     if (!mine || !partner) return say('Enter both names.');
     if (same(mine, partner)) return say('The two names must be different.');
-    if (url && !API_RE.test(url)) return say(URL_HELP);
-    if (url && !passcode) return say('Enter the shared passcode.');
+    if (!url) return say('Paste your script URL. No script yet? Open the guide under the URL field.');
+    if (!API_RE.test(url)) return say(URL_HELP);
+    if (!passcode) return say('Enter the shared passcode.');
 
-    const next = { api: url, passcode: url ? passcode : '', names: [mine, partner], active: 0 };
+    const next = { api: url, passcode, names: [mine, partner], active: 0 };
     $('setupBtn').disabled = true;
     say('');
     try {
@@ -1386,16 +1381,6 @@
     }
   });
 
-  // Welcome page buttons
-  for (const b of document.querySelectorAll('[data-goto]')) {
-    b.addEventListener('click', () => { $(b.dataset.goto).scrollIntoView({ behavior: 'smooth' }); setTimeout(() => $('sme').focus({ preventScroll: true }), 400); });
-  }
-  $('tryDemo').addEventListener('click', () => {
-    if (!$('sme').value.trim()) $('sme').value = 'Me';
-    if (!$('spartner').value.trim() || same($('spartner').value, $('sme').value)) $('spartner').value = 'Partner';
-    $('sapi').value = ''; $('spass').value = '';
-    $('setupForm').requestSubmit();
-  });
   $('copyScript').addEventListener('click', async () => {
     const file = 'apps-script/Code.gs';
     try {
