@@ -39,20 +39,14 @@
   header.top { display: flex; align-items: center; gap: 8px; padding: 16px 0 14px; }
   header.top h1 { font-size: 22px; flex: 1; }
   .me {
-    position: relative; display: flex; align-items: center; gap: 6px; margin: 0; min-width: 0;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 26px 4px 4px;
+    display: flex; align-items: center; gap: 6px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 4px;
   }
   .me i {
     flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
     display: grid; place-content: center; font-style: normal; font-size: 12px; font-weight: 700;
   }
-  .me select {
-    appearance: none; -webkit-appearance: none; background: transparent; border: 0; padding: 0; width: auto;
-    max-width: 34vw; font-size: 13px; font-weight: 600; color: var(--ink); text-overflow: ellipsis; cursor: pointer;
-  }
-  .me select:focus { outline: none; }
-  .me:focus-within { outline: 2px solid var(--ink); outline-offset: 1px; }
-  .me::after { content: "▾"; position: absolute; right: 10px; font-size: 11px; color: var(--muted); pointer-events: none; }
+  .me span { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34vw; }
   .round {
     flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line);
     display: grid; place-content: center; font-size: 15px; padding: 0;
@@ -193,16 +187,12 @@
   <form class="box" id="setupForm">
     <h1 id="setupTitle">Gifter</h1>
     <p id="setupLead">A private wishlist for two. Set up this device once.</p>
-    <div class="cols">
-      <div><label for="sme">Your name</label><input id="sme" maxlength="40" autocomplete="off" required></div>
-      <div><label for="spartner">Partner's name</label><input id="spartner" maxlength="40" autocomplete="off" required></div>
-    </div>
     <label for="sapi">Google Apps Script web app URL</label>
     <input id="sapi" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
     <p class="hint">Leave blank to try demo mode (items stay in this browser only).</p>
-    <label for="spass">Shared passcode</label>
+    <label for="spass">Your passcode</label>
     <input id="spass" type="password" autocomplete="off">
-    <p class="hint">Saved only in this browser. Never stored in the website's code.</p>
+    <p class="hint">Your own passcode, not your partner's — it decides which wishlist is yours. Saved only in this browser.</p>
     <div class="err" id="setupErr" role="alert"></div>
     <div class="btns">
       <button type="button" class="ghost" id="setupBack" hidden>Back</button>
@@ -211,12 +201,14 @@
   </form>
 
   <div class="box" id="magicBox" hidden>
-    <h2 id="magicTitle">Invite your partner</h2>
-    <p>Opening this link on their phone connects it to your Google Sheet and sets their profile.</p>
-    <label class="check"><input type="checkbox" id="magicPass"> Include the passcode in the link</label>
+    <h2>Add a device</h2>
+    <p>A setup link fills in the connection, so nobody has to paste the script address.</p>
+    <div class="btns"><button type="button" class="primary" id="magicPartnerBtn">🔗 Copy setup link for partner</button></div>
+    <p class="hint" id="magicPartnerHint"></p>
+    <div class="btns"><button type="button" class="ghost" id="magicMineBtn" style="flex:1">Copy link for my other devices</button></div>
+    <label class="check"><input type="checkbox" id="magicPass"> Include my passcode in my own link</label>
     <p class="hint" id="magicHint"></p>
-    <div class="btns"><button type="button" class="primary" id="magicBtn">🔗 Copy Magic Setup Link</button></div>
-    <input id="magicOut" readonly hidden aria-label="Magic setup link" style="margin-top:10px">
+    <input id="magicOut" readonly hidden aria-label="Setup link" style="margin-top:10px">
   </div>
 
   <div class="box" id="resetBox" hidden>
@@ -229,7 +221,7 @@
 <div class="wrap" id="app" hidden>
   <header class="top">
     <h1>Gifter</h1>
-    <label class="me" for="iam" title="I am"><i id="avatar" aria-hidden="true"></i><select id="iam" aria-label="I am"></select></label>
+    <div class="me" title="Signed in as"><i id="avatar" aria-hidden="true"></i><span id="meName"></span></div>
     <button class="round" id="refresh" aria-label="Reload list" title="Reload list">↻</button>
     <button class="round" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
   </header>
@@ -281,7 +273,8 @@
     del(k) { try { localStorage.removeItem(k); } catch {} },
   };
 
-  // settings: { api, passcode, names: [a, b], active: 0|1 } — lives only in this browser.
+  // settings: { api, passcode, me, partner } — lives only in this browser.
+  // me/partner are names reported by the backend, which works out who you are from your passcode.
   let settings = store.get(KEY.settings, null);
   let items = [];
   let tab = 'theirs';        // 'theirs' | 'mine'
@@ -289,8 +282,8 @@
   let editingId = null;
   let loading = false;
 
-  const me = () => settings.names[settings.active];
-  const other = () => settings.names[1 - settings.active];
+  const me = () => settings.me;
+  const other = () => settings.partner;
   const demo = () => !settings.api;
 
   const same = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
@@ -302,17 +295,18 @@
   /* ---------- backend ---------- */
 
   async function api(action, data = {}, cfg = settings) {
-    const user = cfg.names[cfg.active];
-    if (!cfg.api) return demoApi(action, data, user);
+    if (!cfg.api) return demoApi(action, data, cfg.me);
     let res;
     try {
       // String body => text/plain => no CORS preflight, which Apps Script cannot answer.
-      res = await fetch(cfg.api, { method: 'POST', body: JSON.stringify({ action, passcode: cfg.passcode, user, ...data }) });
+      res = await fetch(cfg.api, { method: 'POST', body: JSON.stringify({ action, passcode: cfg.passcode, ...data }) });
     } catch { throw new Error('Could not reach the wishlist. Check your connection and the Apps Script URL.'); }
     let out;
     try { out = await res.json(); } catch { throw new Error('Backend gave an unexpected reply. Check the Apps Script deployment (access must be “Anyone”).'); }
     if (!out.ok) {
-      const err = new Error(out.error === 'unauthorized' ? 'Wrong passcode.' : (out.error || 'Something went wrong.'));
+      const err = new Error(out.error === 'unauthorized' ? 'Wrong passcode.'
+        : out.error === 'Missing name.' ? 'The script is an older version. Paste the latest Code.gs, fill in PEOPLE, and deploy a new version.'
+        : (out.error || 'Something went wrong.'));
       err.unauthorized = out.error === 'unauthorized';
       throw err;
     }
@@ -441,7 +435,7 @@
     const theirList = items.filter((it) => same(it.addedBy, other()));
 
     $('avatar').textContent = me().charAt(0).toUpperCase();
-    $('iam').replaceChildren(...settings.names.map((n, i) => el('option', { value: String(i), selected: i === settings.active }, n)));
+    $('meName').textContent = me();
 
     const tabs = [
       { key: 'theirs', label: other() + '’s Wishlist', n: theirList.length },
@@ -503,9 +497,13 @@
   async function load() {
     const seq = ++loadSeq;
     try {
-      const fresh = (await api('list')).items;
-      if (seq !== loadSeq) return;                 // profile switched while loading
-      items = fresh;
+      const res = await api('list');
+      if (seq !== loadSeq) return;                 // a newer load is in flight
+      if (res.me && res.partner && (res.me !== settings.me || res.partner !== settings.partner)) {
+        settings.me = res.me; settings.partner = res.partner;      // names were changed in the script
+        store.set(KEY.settings, settings);
+      }
+      items = res.items;
       loading = false;
       store.set(KEY.cache, { user: me(), items });
       render();
@@ -636,7 +634,7 @@
     }
   });
 
-  /* ---------- setup / settings / magic link ---------- */
+  /* ---------- setup / settings / setup links ---------- */
 
   function showApp() {
     $('setup').hidden = true;
@@ -655,46 +653,46 @@
     $('app').hidden = true;
     $('setup').hidden = false;
     $('setupTitle').textContent = first ? 'Gifter' : 'Settings';
-    $('setupLead').textContent = first ? 'A private wishlist for two. Set up this device once.' : 'Names, Google Sheet connection and passcode for this device.';
+    $('setupLead').textContent = first ? 'A private wishlist for two. Connect this device once.' : 'Signed in as ' + me() + '. Connection for this device.';
     $('setupBtn').textContent = first ? 'Connect' : 'Save';
     $('setupBack').hidden = first;
-    $('sme').value = v ? v.names[v.active] : '';
-    $('spartner').value = v ? v.names[1 - v.active] : '';
     $('sapi').value = v?.api || '';
     $('spass').value = v?.passcode || '';
     $('setupErr').textContent = message || '';
-    $('magicBox').hidden = first || demo();
+    const linked = !first && !demo();
+    $('magicBox').hidden = !linked;
     $('resetBox').hidden = first;
     $('magicOut').hidden = true;
-    if (!first) {
-      $('magicTitle').textContent = 'Invite ' + other();
-      $('magicBtn').textContent = '🔗 Copy Magic Setup Link for ' + other();
+    if (linked) {
+      $('magicPartnerBtn').textContent = '🔗 Copy setup link for ' + other();
+      $('magicPartnerHint').textContent = other() + ' opens it and types their own passcode once. Your passcode is never in this link.';
       magicHint();
     }
   }
 
   function magicHint() {
     $('magicHint').textContent = $('magicPass').checked
-      ? 'Anyone who gets this link can open your wishlist. Send it only to ' + other() + ', in a private chat.'
-      : other() + ' will be asked for the passcode once. Tell it to them separately.';
+      ? 'This link signs in as you. Open it only on your own devices and never forward it.'
+      : 'You will type your passcode once on the new device.';
   }
   $('magicPass').addEventListener('change', magicHint);
 
   $('setupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const mine = $('sme').value.trim(), partner = $('spartner').value.trim();
     const url = $('sapi').value.trim(), passcode = $('spass').value;
     const say = (m) => { $('setupErr').textContent = m; };
-    if (!mine || !partner) return say('Enter both names.');
-    if (same(mine, partner)) return say('The two names must be different.');
     if (url && !API_RE.test(url)) return say('That is not an Apps Script web app URL. It looks like https://script.google.com/macros/s/…/exec');
-    if (url && !passcode) return say('Enter the shared passcode.');
+    if (url && !passcode) return say('Enter your passcode.');
 
-    const next = { api: url, passcode: url ? passcode : '', names: [mine, partner], active: 0 };
+    const next = { api: url, passcode: url ? passcode : '', me: 'Me', partner: 'Partner' };
     $('setupBtn').disabled = true;
     say('');
     try {
-      await api('list', {}, next);             // checks URL and passcode before saving anything
+      const res = await api('list', {}, next);       // checks URL and passcode before saving anything
+      if (url) {
+        if (!res.me || !res.partner) throw new Error('The script is an older version. Paste the latest Code.gs and deploy a new version.');
+        next.me = res.me; next.partner = res.partner;  // who you are is decided by the backend, from the passcode
+      }
       settings = next;
       store.set(KEY.settings, settings);
       store.del(KEY.cache);
@@ -710,43 +708,37 @@
   $('setupBack').addEventListener('click', showApp);
   $('settingsBtn').addEventListener('click', () => openSetup());
 
-  $('magicBtn').addEventListener('click', async () => {
-    // For the partner the names are swapped, so the link opens with their profile active.
-    const payload = { api: settings.api, me: other(), partner: me() };
-    if ($('magicPass').checked) payload.passcode = settings.passcode;
+  async function copyLink(payload, done) {
     const link = location.origin + location.pathname + '#setup=' + b64e(JSON.stringify(payload));
     $('magicOut').value = link;
     $('magicOut').hidden = false;
-    try { await navigator.clipboard.writeText(link); toast('Link copied. Send it to ' + other() + '.'); }
+    try { await navigator.clipboard.writeText(link); toast(done); }
     catch { $('magicOut').select(); toast('Copy the link shown below.'); }
-  });
+  }
+
+  // Partner link: connection only. They prove who they are with their own passcode.
+  $('magicPartnerBtn').addEventListener('click', () => copyLink({ api: settings.api }, 'Link copied. Send it to ' + other() + '.'));
+  // Own-device link: may carry your passcode, so it signs in as you.
+  $('magicMineBtn').addEventListener('click', () => copyLink(
+    $('magicPass').checked ? { api: settings.api, passcode: settings.passcode } : { api: settings.api },
+    'Link copied. Open it on your other device.'));
 
   $('resetBtn').addEventListener('click', () => {
-    if (!confirm('Disconnect this device? You will need the Apps Script URL and passcode to connect again.')) return;
+    if (!confirm('Disconnect this device? You will need a setup link or the script URL, plus your passcode, to connect again.')) return;
     store.del(KEY.settings); store.del(KEY.cache);
     settings = null; items = [];
     openSetup();
   });
 
-  $('iam').addEventListener('change', () => {
-    settings.active = Number($('iam').value) === 1 ? 1 : 0;
-    store.set(KEY.settings, settings);
-    store.del(KEY.cache);
-    items = []; loading = true; tab = 'theirs'; filter = 'all';     // claims differ per person: drop the old view at once
-    render();
-    load();
-  });
-
-  // Magic setup link: #setup=<base64 json>. The part after # never leaves the browser.
+  // Setup link: #setup=<base64 json>. The part after # never leaves the browser.
   function readMagic() {
     const m = location.hash.match(/^#setup=([\w-]+)$/);
     if (!m) return null;
     history.replaceState(null, '', location.pathname + location.search);   // do not leave it in the address bar
     try {
       const d = JSON.parse(b64d(m[1]));
-      const ok = [d.api, d.me, d.partner].every((v) => typeof v === 'string' && v.trim()) && API_RE.test(d.api) && !same(d.me, d.partner);
-      if (!ok) return null;
-      return { api: d.api, passcode: typeof d.passcode === 'string' ? d.passcode : '', names: [d.me.trim().slice(0, 40), d.partner.trim().slice(0, 40)], active: 0 };
+      if (typeof d.api !== 'string' || !API_RE.test(d.api)) return null;
+      return { api: d.api, passcode: typeof d.passcode === 'string' ? d.passcode : '' };
     } catch { return null; }
   }
 
@@ -754,17 +746,22 @@
   $('addBtn').addEventListener('click', () => openForm(null));
   document.addEventListener('visibilitychange', () => { if (!document.hidden && settings && !$('app').hidden) load(); });
 
-  const valid = (s) => s && Array.isArray(s.names) && s.names.length === 2 && s.names.every((n) => typeof n === 'string' && n) && (s.active === 0 || s.active === 1);
+  const str = (v) => typeof v === 'string';
+  const valid = (s) => s && str(s.api) && str(s.passcode) && str(s.me) && s.me && str(s.partner) && s.partner;
+  const saved = settings;
   if (!valid(settings)) settings = null;
 
   const magic = readMagic();
   if (magic) {
     settings = null;                         // the link replaces whatever this device had
-    openSetup(magic.passcode ? '' : 'Almost there — enter the shared passcode.', magic);
+    openSetup(magic.passcode ? '' : 'Almost there — enter your passcode.', magic);
     if (magic.passcode) $('setupForm').requestSubmit();
     else $('spass').focus();
   } else if (settings) {
     showApp();
+  } else if (saved && str(saved.api) && saved.api) {
+    // Saved by an older version (shared passcode): keep the connection, ask for the personal passcode.
+    openSetup('Gifter was updated. Enter your own passcode to reconnect.', { api: saved.api, passcode: '' });
   } else {
     openSetup();
   }

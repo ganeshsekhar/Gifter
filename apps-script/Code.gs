@@ -5,34 +5,44 @@
 // instead of every spreadsheet in your Google account. Keep it as the first lines.
 
 /**
- * Wishlist backend — Google Apps Script bound to a Google Sheet.
+ * Gifter backend — Google Apps Script bound to a Google Sheet.
  * The Sheet is the database. The web page (GitHub Pages) talks to this script.
  *
- * SETUP: change PASSCODE below, then Deploy > New deployment > Web app
+ * SETUP: fill in PEOPLE below, then Deploy > New deployment > Web app
  *        (Execute as: Me, Who has access: Anyone). See README.md.
+ *        After any later edit: Deploy > Manage deployments > edit > New version.
  */
 
-// Shared secret for you two. Change it here in the Apps Script editor ONLY.
-// Do not commit your real passcode to the public GitHub repo.
-const PASSCODE = 'CHANGE-ME';
+// One entry per person. The passcode decides who you are, so each person
+// should know only their own. Names must match the names already used in the
+// Items tab (column "addedBy"), otherwise older wishes will not show up.
+// Edit this here in the Apps Script editor ONLY — never commit real values.
+const PEOPLE = [
+  { name: 'Person One', passcode: 'CHANGE-ME-1' },
+  { name: 'Person Two', passcode: 'CHANGE-ME-2' },
+];
 
 const SHEET_NAME = 'Items';
-const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt', 'claimedBy'];
+const CLAIMS_NAME = 'Claims';   // hidden tab, so claims are not seen by accident
+const HEADERS = ['id', 'url', 'title', 'image', 'price', 'note', 'addedBy', 'createdAt'];
+const CLAIM_HEADERS = ['itemId', 'claimedBy'];
 
 function doGet() {
-  return json({ ok: true, message: 'Wishlist backend is running.' });
+  return json({ ok: true, message: 'Gifter backend is running.' });
 }
 
 function doPost(e) {
   let out;
   try {
     const req = JSON.parse(e.postData.contents);
-    if (PASSCODE === 'CHANGE-ME') {
-      out = { ok: false, error: 'Backend passcode not set yet. Edit PASSCODE in Code.gs and redeploy.' };
-    } else if (String(req.passcode || '') !== PASSCODE) {
-      out = { ok: false, error: 'unauthorized' };
+    const problem = configError();
+    if (problem) {
+      out = { ok: false, error: problem };
     } else {
-      out = handle(req);
+      // Identity comes from the passcode alone; the page cannot claim to be someone else.
+      const given = String(req.passcode || '');
+      const i = PEOPLE[0].passcode === given ? 0 : PEOPLE[1].passcode === given ? 1 : -1;
+      out = i < 0 ? { ok: false, error: 'unauthorized' } : handle(req, PEOPLE[i].name, PEOPLE[1 - i].name);
     }
   } catch (err) {
     out = { ok: false, error: String(err && err.message || err) };
@@ -40,20 +50,28 @@ function doPost(e) {
   return json(out);
 }
 
+function configError() {
+  if (PEOPLE.length !== 2) return 'PEOPLE in Code.gs must list exactly two people.';
+  const a = PEOPLE[0], b = PEOPLE[1];
+  if (!clean(a.name, 40) || !clean(b.name, 40) || same(a.name, b.name)) return 'Give the two people different names in PEOPLE (Code.gs).';
+  if (!a.passcode || !b.passcode || /^CHANGE-ME/.test(a.passcode) || /^CHANGE-ME/.test(b.passcode)) {
+    return 'Passcodes not set yet. Edit PEOPLE in Code.gs and deploy a new version.';
+  }
+  if (a.passcode === b.passcode) return 'The two passcodes in PEOPLE must be different.';
+  return '';
+}
+
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function handle(req) {
-  const user = clean(req.user, 40);
-  if (!user) return { ok: false, error: 'Missing name.' };
-
-  if (req.action === 'list') return { ok: true, items: listItems(user) };
+function handle(req, user, partner) {
   if (req.action === 'preview') return { ok: true, meta: fetchMeta(httpUrl(req.url)) };
 
   const lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
+    if (req.action === 'list') return { ok: true, me: user, partner: partner, items: listItems(user) };
     if (req.action === 'add') return addItem(req.item || {}, user);
     if (req.action === 'update') return updateItem(req.id, req.item || {}, user);
     if (req.action === 'delete') return deleteItem(req.id);
@@ -65,17 +83,40 @@ function handle(req) {
 
 /* ---------- Sheet storage ---------- */
 
-function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sh = ss.getSheetByName(SHEET_NAME);
-  if (!sh) {
-    sh = ss.insertSheet(SHEET_NAME);
-    // Plain-text format so Sheets never reinterprets prices, ids or dates.
-    sh.getRange(1, 1, sh.getMaxRows(), HEADERS.length).setNumberFormat('@');
-    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
-    sh.setFrozenRows(1);
-  }
+function newTab(ss, name, headers) {
+  const sh = ss.insertSheet(name);
+  // Plain-text format so Sheets never reinterprets prices, ids or dates.
+  sh.getRange(1, 1, sh.getMaxRows(), headers.length).setNumberFormat('@');
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  sh.setFrozenRows(1);
   return sh;
+}
+
+function getSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const items = ss.getSheetByName(SHEET_NAME) || newTab(ss, SHEET_NAME, HEADERS);
+  let claims = ss.getSheetByName(CLAIMS_NAME);
+  if (!claims) {
+    claims = newTab(ss, CLAIMS_NAME, CLAIM_HEADERS);
+    migrateLegacyClaims(items, claims);
+    claims.hideSheet();
+  }
+  return { items: items, claims: claims };
+}
+
+// Earlier versions kept "claimedBy" as column 9 of the Items tab. Move it out.
+function migrateLegacyClaims(items, claims) {
+  if (items.getLastColumn() < 9 || String(items.getRange(1, 9).getValue()).trim() !== 'claimedBy') return;
+  const last = items.getLastRow();
+  if (last >= 2) {
+    const ids = items.getRange(2, 1, last - 1, 1).getValues();
+    const who = items.getRange(2, 9, last - 1, 1).getValues();
+    ids.forEach(function (r, i) {
+      const id = String(r[0]).trim(), by = String(who[i][0]).trim();
+      if (id && by) claims.appendRow([cell(id), cell(by)]);
+    });
+  }
+  items.getRange(1, 9, last, 1).clearContent();
 }
 
 function readAll(sh) {
@@ -86,6 +127,28 @@ function readAll(sh) {
     HEADERS.forEach(function (h, i) { o[h] = String(row[i]).trim(); });
     return o;
   });
+}
+
+// itemId -> { by, row }
+function readClaims(sh) {
+  const map = {};
+  const last = sh.getLastRow();
+  if (last < 2) return map;
+  sh.getRange(2, 1, last - 1, 2).getValues().forEach(function (r, i) {
+    const id = String(r[0]).trim();
+    if (id) map[id] = { by: String(r[1]).trim(), row: i + 2 };
+  });
+  return map;
+}
+
+function setClaim(sh, id, by) {
+  const hit = readClaims(sh)[id];
+  if (by) {
+    if (hit) sh.getRange(hit.row, 1, 1, 2).setValues([[cell(id), cell(by)]]);
+    else sh.appendRow([cell(id), cell(by)]);
+  } else if (hit) {
+    sh.deleteRow(hit.row);
+  }
 }
 
 function toRow(o) {
@@ -112,19 +175,21 @@ function same(a, b) {
 }
 
 // The person who wished for an item never learns whether it was claimed.
-function publicItem(o, user) {
+function publicItem(o, user, claimedBy) {
   const mine = same(o.addedBy, user);
   return {
     id: o.id, url: o.url, title: o.title, image: o.image, price: o.price, note: o.note,
     addedBy: o.addedBy, createdAt: Number(o.createdAt) || 0,
-    claimed: mine ? false : !!o.claimedBy,
-    claimedBy: mine ? '' : o.claimedBy
+    claimed: mine ? false : !!claimedBy,
+    claimedBy: mine ? '' : (claimedBy || '')
   };
 }
 
 function listItems(user) {
-  return readAll(getSheet()).filter(function (o) { return o.id; })
-    .map(function (o) { return publicItem(o, user); });
+  const sh = getSheets();
+  const claims = readClaims(sh.claims);
+  return readAll(sh.items).filter(function (o) { return o.id; })
+    .map(function (o) { return publicItem(o, user, claims[o.id] && claims[o.id].by); });
 }
 
 function fields(item) {
@@ -143,9 +208,8 @@ function addItem(item, user) {
   o.id = Utilities.getUuid();
   o.addedBy = user;
   o.createdAt = String(Date.now());
-  o.claimedBy = '';
-  getSheet().appendRow(toRow(o));
-  return { ok: true, item: publicItem(o, user) };
+  getSheets().items.appendRow(toRow(o));
+  return { ok: true, item: publicItem(o, user, '') };
 }
 
 function findRow(sh, id) {
@@ -157,25 +221,29 @@ function findRow(sh, id) {
 }
 
 function updateItem(id, item, user) {
-  const sh = getSheet();
-  const hit = findRow(sh, id);
+  const sh = getSheets();
+  const hit = findRow(sh.items, id);
   if (!hit) return { ok: false, error: 'Item not found — it may have been deleted.' };
   const o = hit.item;
   if ('title' in item || 'url' in item) {
     const f = fields(item);
     if (!f.title && !f.url) return { ok: false, error: 'Add a link or a title.' };
     o.url = f.url; o.title = f.title; o.image = f.image; o.price = f.price; o.note = f.note;
+    sh.items.getRange(hit.row, 1, 1, HEADERS.length).setValues([toRow(o)]);
   }
   // Edits never touch the claim; only the other person can set or clear it.
-  if ('claimed' in item && !same(o.addedBy, user)) o.claimedBy = item.claimed ? user : '';
-  sh.getRange(hit.row, 1, 1, HEADERS.length).setValues([toRow(o)]);
-  return { ok: true, item: publicItem(o, user) };
+  if ('claimed' in item && !same(o.addedBy, user)) setClaim(sh.claims, o.id, item.claimed ? user : '');
+  const claim = readClaims(sh.claims)[o.id];
+  return { ok: true, item: publicItem(o, user, claim && claim.by) };
 }
 
 function deleteItem(id) {
-  const sh = getSheet();
-  const hit = findRow(sh, id);
-  if (hit) sh.deleteRow(hit.row);
+  const sh = getSheets();
+  const hit = findRow(sh.items, id);
+  if (hit) {
+    sh.items.deleteRow(hit.row);
+    setClaim(sh.claims, hit.item.id, '');
+  }
   return { ok: true };
 }
 
