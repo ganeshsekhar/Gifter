@@ -329,10 +329,14 @@
     .w-lead { font-size: 15.500px; margin-bottom: 16px; }
     .w-points { display: none; }
     .w-fine { margin-top: 10px; }
-    .w-shots { height: 100%; min-height: 180px; }
-    .phone { border-width: 7px; border-radius: 30px; height: auto; }
-    .phone.front { width: 56%; left: 5%; top: 4px; }
-    .phone.back { width: 50%; right: 2%; top: 34px; }
+    /* Phone layout: words first, then one large screenshot that fades out, with the button floating over the fade */
+    .w-copy { position: static; }
+    .w-shots { height: 100%; min-height: 180px; -webkit-mask-image: linear-gradient(#000 48%, transparent 90%); mask-image: linear-gradient(#000 48%, transparent 90%); }
+    .phone { border-width: 7px; border-radius: 34px; height: auto; }
+    .phone.back { display: none; }
+    .phone.front { width: 88%; left: 6%; top: 2px; transform: none; }
+    #getStarted { position: absolute; z-index: 3; left: 22px; right: 22px; bottom: 46px; min-height: 54px; }
+    .w-fine { position: absolute; z-index: 3; left: 0; right: 0; bottom: 16px; margin: 0; text-align: center; }
   }
   #setupLead { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
   #connectDlg .dlg-actions .primary { min-height: 48px; }
