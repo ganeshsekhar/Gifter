@@ -458,6 +458,7 @@
   .more::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
   .menu { top: 50px; }
   .list .menu { top: 46px; }
+  .gear { width: 22px; height: 22px; display: block; }
 </style>
 </head>
 <body>
@@ -592,7 +593,7 @@
       <option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
     </select></label>
     <label class="me" for="iam" title="I am"><i id="avatar" aria-hidden="true"></i><select id="iam" aria-label="I am"></select></label>
-    <button class="round" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
+    <button class="round" id="settingsBtn" aria-label="Settings" title="Settings"><svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="8.800" stroke-width="2.800" stroke-dasharray="3.456 3.456"/><circle cx="12" cy="12" r="5.400" stroke-width="3.400"/></svg></button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
   <div class="banner install" id="installBanner" hidden>
