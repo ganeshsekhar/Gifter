@@ -41,7 +41,7 @@
       --seg: #1b1b25; --seg-on: #343446;
       --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset; --lift: 0 14px 34px rgba(0, 0, 0, .5);
       --pop: 0 10px 30px rgba(0, 0, 0, .55);
-      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .20); --seg-sel-edge: rgba(255, 255, 255, .22);
+      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .24); --seg-sel-edge: rgba(255, 255, 255, .26);
       color-scheme: dark;
     }
   }
@@ -52,7 +52,7 @@
     --seg: #1b1b25; --seg-on: #343446;
     --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset; --lift: 0 14px 34px rgba(0, 0, 0, .5);
     --pop: 0 10px 30px rgba(0, 0, 0, .55);
-      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .20); --seg-sel-edge: rgba(255, 255, 255, .22);
+      --glass: rgba(36, 36, 54, .46); --glass-strong: rgba(40, 40, 60, .72); --glass-edge: rgba(255, 255, 255, .11); --glass-shine: rgba(255, 255, 255, .08); --glass-field: rgba(10, 10, 18, .38); --glass-chip: rgba(255, 255, 255, .08); --glow-mix: 16%; --seg-sel: rgba(255, 255, 255, .24); --seg-sel-edge: rgba(255, 255, 255, .26);
     color-scheme: dark;
   }
   :root { color-scheme: light; }
@@ -84,7 +84,7 @@
   @media (max-width: 400px) { .brand { font-size: 21px; } }
   .me {
     position: relative; display: flex; align-items: center; gap: 6px; margin: 0; min-width: 0;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 26px 4px 4px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 28px 4px 16px;
   }
   .me i {
     flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
@@ -521,7 +521,7 @@
   :root {
     --glass: rgba(255, 255, 255, .58); --glass-strong: rgba(255, 255, 255, .82); --glass-edge: rgba(255, 255, 255, .8); --glass-shine: rgba(255, 255, 255, .75);
     --glass-field: rgba(255, 255, 255, .55); --glass-chip: rgba(40, 40, 90, .07);
-    --glow-a: #6d5efc; --glow-mix: 12%; --seg-sel: #ffffff; --seg-sel-edge: rgba(40, 40, 90, .10);
+    --glow-a: #6d5efc; --glow-mix: 12%; --seg-sel: rgba(255, 255, 255, .92); --seg-sel-edge: rgba(40, 40, 90, .10);
   }
   body::before {                 /* one quiet indigo wash from the top corner, a fainter echo at the bottom; fixed behind everything */
     content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
@@ -537,8 +537,8 @@
   .hero, .panel, .box, .pick, .me, .round, .filter-btn { -webkit-backdrop-filter: blur(22px) saturate(1.400); backdrop-filter: blur(22px) saturate(1.400); }
   .hero { background: radial-gradient(120% 150% at 100% 0%, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 62%), var(--glass); }
   .hero .seg, .seg { background: var(--glass-chip); }
-  /* the chosen tab is filled with the primary colour — same as selected chips, and the same in light and dark */
-  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent); }
+  /* the chosen tab is a translucent white pill in both themes */
+  .tab[aria-selected="true"], .seg.mini .tab[aria-pressed="true"] { background: var(--seg-sel); color: var(--ink); box-shadow: 0 0 0 1px var(--seg-sel-edge), 0 2px 8px rgba(0, 0, 0, .16); }
   .tab { color: var(--muted); }
   .card { box-shadow: 0 8px 26px rgba(30, 24, 110, .10), inset 0 1px 0 var(--glass-shine); }
   @media (hover: hover) { .card:hover { box-shadow: 0 18px 40px rgba(30, 24, 110, .20), inset 0 1px 0 var(--glass-shine); } }
@@ -590,6 +590,31 @@
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after, ::backdrop { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+
+  /* ===== Hover: every button answers the pointer (mouse and trackpad only; touch screens skip this) ===== */
+  @media (hover: hover) {
+    .round:hover, .pick:hover, .me:hover, .filter-btn:hover, .ghost:hover, .steps a.small:hover {
+      border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--glass));
+    }
+    .round:hover, .filter-btn:hover { color: var(--primary); }
+    .pick, .me, .round { transition: background-color .15s, border-color .15s, color .15s; cursor: pointer; }
+    .tab:not([aria-selected="true"]):not([aria-pressed="true"]):hover { color: var(--ink); background: var(--glass-chip); }
+    .tab[aria-selected="true"]:hover, .seg.mini .tab[aria-pressed="true"]:hover { filter: brightness(1.060); }
+    .view:hover { color: var(--ink); }
+    .opt:not([aria-pressed="true"]):hover { background: color-mix(in srgb, var(--primary) 16%, var(--glass-chip)); }
+    .opt[aria-pressed="true"]:hover { background: var(--primary-strong); }
+    .claim.done:hover { filter: brightness(1.080); }
+    .more:hover { background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .28); }
+    .list .more:hover { background: var(--glass-chip); box-shadow: none; }
+    .clear:hover, .sync:hover { color: var(--ink); }
+    .xbtn:hover { background: var(--glass-chip); color: var(--ink); }
+    .menu a:hover, .menu button:hover { background: var(--glass-chip); }
+    .ghost.danger:hover { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+    .copy-btn:hover:not(.done) { background: var(--primary-strong); }
+    .primary:disabled:hover { background: var(--primary); }
+    .switch:hover { background: color-mix(in srgb, var(--primary) 10%, var(--glass-chip)); }
+    .c-guide summary:hover { color: var(--primary-strong); }
   }
 </style>
 </head>
@@ -734,7 +759,7 @@
     <label class="pick" title="Show prices in"><select id="currency" aria-label="Show prices in">
       <option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
     </select></label>
-    <label class="me" for="iam" title="I am"><i id="avatar" aria-hidden="true"></i><select id="iam" aria-label="I am"></select></label>
+    <label class="me" for="iam" title="I am"><select id="iam" aria-label="I am"></select></label>
     <button class="round" id="settingsBtn" aria-label="Settings" title="Settings"><svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.700" stroke-linejoin="round" aria-hidden="true"><path d="M10.19 4.93L10.57 2.51L13.43 2.51L13.81 4.93L15.72 5.72L17.70 4.27L19.73 6.30L18.28 8.28L19.07 10.19L21.49 10.57L21.49 13.43L19.07 13.81L18.28 15.72L19.73 17.70L17.70 19.73L15.72 18.28L13.81 19.07L13.43 21.49L10.57 21.49L10.19 19.07L8.28 18.28L6.30 19.73L4.27 17.70L5.72 15.72L4.93 13.81L2.51 13.43L2.51 10.57L4.93 10.19L5.72 8.28L4.27 6.30L6.30 4.27L8.28 5.72Z"/><circle cx="12" cy="12" r="3.100"/></svg></button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
@@ -1084,7 +1109,6 @@
     const mineList = items.filter((it) => same(it.addedBy, me()));
     const theirList = items.filter((it) => same(it.addedBy, other()));
 
-    $('avatar').textContent = me().charAt(0).toUpperCase();
     $('iam').replaceChildren(...settings.names.map((n, i) => el('option', { value: String(i), selected: i === settings.active }, n)));
 
     const tabs = [
