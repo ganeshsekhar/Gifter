@@ -149,6 +149,7 @@
   textarea { resize: vertical; min-height: 64px; }
   input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
   .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
+  .hint a { color: var(--ink); font-weight: 600; }
 
   .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
   .box { background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
@@ -199,7 +200,7 @@
     </div>
     <label for="sapi">Google Apps Script web app URL</label>
     <input id="sapi" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-    <p class="hint">Leave blank to try demo mode (items stay in this browser only).</p>
+    <p class="hint">No script yet? <a href="https://github.com/ganeshsekhar/Gifter#setup-about-10-minutes-once" target="_blank" rel="noopener">Set up your own wishlist in about 10 minutes</a> — free, and your data stays in your own Google Sheet. Or leave this blank to try demo mode.</p>
     <label for="spass">Shared passcode</label>
     <input id="spass" type="password" autocomplete="off">
     <p class="hint">Saved only in this browser. Never stored in the website's code.</p>

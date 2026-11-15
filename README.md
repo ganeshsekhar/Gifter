@@ -32,11 +32,15 @@ A private gift wishlist for two. Free to run:
 
 ## Setup (about 10 minutes, once)
 
+Anyone can use the hosted page at https://ganeshsekhar.github.io/Gifter/ with their own Google
+Sheet — each couple's data stays in their own Sheet, and nothing is shared between couples.
+
 ### 1. Google Sheet + backend
 
 1. Create a new Google Sheet (any name).
 2. In the Sheet: **Extensions → Apps Script**.
-3. Delete the sample code and paste in everything from `apps-script/Code.gs`.
+3. Delete the sample code and paste in everything from [`apps-script/Code.gs`](apps-script/Code.gs)
+   (open it and use the copy button at the top right of the code).
 4. Change `const PASSCODE = 'CHANGE-ME';` to your own passcode. Save. (Change it only there — do
    not commit your real passcode to this repo.)
 5. **Deploy → New deployment → Select type: Web app**.
