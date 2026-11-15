@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Our Wishlist</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<script>
+  // Paste your Apps Script web app URL here (ends with /exec). See README.md.
+  // Left empty, the app runs in demo mode: data stays in this browser only.
+  const API_URL = '';
+</script>
+<style>
+  :root {
+    --bg: #faf5ef; --surface: #ffffff; --ink: #2b2226; --muted: #7a6c70; --line: #eadfd6;
+    --accent: #b23a5b; --accent-ink: #ffffff; --accent-soft: #f7e3e8; --ok: #2f7d57; --thumb: #ffffff;
+    --shadow: 0 1px 2px rgba(60, 30, 40, .06), 0 6px 20px rgba(60, 30, 40, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191416; --surface: #241d20; --ink: #f3ebee; --muted: #a8989d; --line: #3a2f33;
+      --accent: #e77c98; --accent-ink: #2a0f17; --accent-soft: #3b2029; --ok: #6fcf9f; --thumb: #f4eff0;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100dvh;
+  }
+  h1, h2, h3 { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; margin: 0; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 96px; }
+  header.top { display: flex; align-items: center; gap: 12px; padding: 20px 0 12px; }
+  header.top h1 { font-size: 26px; flex: 1; letter-spacing: -.01em; }
+  .who { color: var(--muted); font-size: 14px; }
+  .link-btn { background: none; border: 0; padding: 4px; color: var(--accent); font-size: 14px; text-decoration: underline; }
+
+  .banner { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 16px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+    padding: 7px 14px; font-size: 14px; white-space: nowrap;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .chip .n { opacity: .7; margin-left: 4px; }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); }
+  @media (min-width: 640px) { .grid { gap: 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column; box-shadow: var(--shadow); min-width: 0;
+  }
+  .thumb {
+    position: relative; display: block; aspect-ratio: 1 / 1; background: var(--thumb);
+    border-bottom: 1px solid var(--line); text-decoration: none;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .thumb .ph {
+    position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px;
+    background: var(--accent-soft); color: var(--muted); font-size: 13px; padding: 12px;
+  }
+  .thumb .ph span { font-size: 40px; }
+  .badge {
+    position: absolute; top: 8px; left: 8px; background: var(--ok); color: #fff;
+    font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  }
+  .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+  .body h3 {
+    font-size: 16px; line-height: 1.3; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .body h3 a { color: inherit; text-decoration: none; }
+  .body h3 a:hover { text-decoration: underline; }
+  .price { font-weight: 600; }
+  .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .note { font-size: 14px; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 8px; }
+  .act {
+    border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 5px 9px; font-size: 13px;
+  }
+  .act:hover { border-color: var(--accent); }
+  .act.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .act.danger { color: var(--accent); }
+
+  .empty { text-align: center; color: var(--muted); padding: 56px 16px; }
+  .empty span { font-size: 44px; display: block; margin-bottom: 8px; }
+
+  .fab {
+    position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom));
+    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 999px;
+    padding: 14px 22px; font-weight: 600; font-size: 16px; box-shadow: 0 6px 20px rgba(120, 30, 60, .35);
+  }
+
+  .primary {
+    background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px;
+    padding: 11px 18px; font-weight: 600;
+  }
+  .ghost { background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 11px 18px; }
+  button:disabled { opacity: .55; cursor: default; }
+
+  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+  input, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .login { max-width: 380px; margin: 12vh auto 0; padding: 0 16px; }
+  .login .box { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+  .login h1 { font-size: 28px; }
+  .login p { color: var(--muted); margin: 6px 0 4px; font-size: 14px; }
+  .login .primary { width: 100%; margin-top: 18px; }
+  .err { color: var(--accent); font-size: 14px; margin-top: 10px; min-height: 1.2em; }
+
+  dialog {
+    border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink);
+    padding: 20px; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
+  }
+  dialog::backdrop { background: rgba(20, 10, 14, .55); }
+  dialog h2 { font-size: 22px; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; min-width: 0; }
+  .status { font-size: 13px; color: var(--muted); min-height: 1.3em; margin-top: 4px; }
+  .preview { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--thumb); height: 140px; display: grid; place-content: center; overflow: hidden; }
+  .preview img { max-width: 100%; height: 140px; object-fit: contain; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: 10px; font-size: 14px; max-width: calc(100vw - 32px); z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<section class="login" id="login" hidden>
+  <form class="box" id="loginForm">
+    <h1>🎁 Our Wishlist</h1>
+    <p>Just for the two of us.</p>
+    <label for="lname">Your name</label>
+    <input id="lname" autocomplete="given-name" maxlength="40" required>
+    <div id="passWrap">
+      <label for="lpass">Shared passcode</label>
+      <input id="lpass" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="primary" id="loginBtn">Open wishlist</button>
+    <div class="err" id="loginErr" role="alert"></div>
+  </form>
+</section>
+
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <h1>🎁 Our Wishlist</h1>
+    <span class="who" id="who"></span>
+    <button class="link-btn" id="refresh" title="Reload list">Refresh</button>
+    <button class="link-btn" id="signout">Sign out</button>
+  </header>
+  <div class="banner" id="demoBanner" hidden>Demo mode — backend not connected yet. Items are saved in this browser only.</div>
+  <nav class="chips" id="chips" aria-label="Filter by person"></nav>
+  <main class="grid" id="grid"></main>
+  <div class="empty" id="empty" hidden><span>🛍️</span><div id="emptyText"></div></div>
+  <button class="fab" id="addBtn">+ Add item</button>
+</div>
+
+<dialog id="dlg">
+  <form id="itemForm" method="dialog">
+    <h2 id="dlgTitle">Add item</h2>
+    <label for="furl">Product link</label>
+    <input id="furl" type="url" inputmode="url" placeholder="https://…" autocomplete="off">
+    <div class="status" id="fstatus"></div>
+    <label for="ftitle">Title</label>
+    <input id="ftitle" maxlength="200" autocomplete="off">
+    <div class="row">
+      <div><label for="fprice">Price (optional)</label><input id="fprice" maxlength="40" autocomplete="off"></div>
+      <div><label for="fimage">Image link (optional)</label><input id="fimage" type="url" inputmode="url" autocomplete="off"></div>
+    </div>
+    <div class="preview" id="fpreview" hidden><img id="fpreviewImg" alt="" referrerpolicy="no-referrer"></div>
+    <label for="fnote">Note (size, colour, why you like it…)</label>
+    <textarea id="fnote" maxlength="500"></textarea>
+    <div class="err" id="formErr" role="alert"></div>
+    <div class="dlg-actions">
+      <button type="button" class="ghost" id="cancelBtn">Cancel</button>
+      <button class="primary" id="saveBtn">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  const DEMO = !API_URL;
+  const KEY = { session: 'wishlist.session', cache: 'wishlist.cache', demo: 'wishlist.demo' };
+  const $ = (id) => document.getElementById(id);
+
+  const store = {
+    get(k, fallback) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+
+  let session = store.get(KEY.session, null);   // { name, passcode }
+  let items = [];
+  let filter = 'all';
+  let editingId = null;
+
+  const same = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+  const isHttp = (u) => /^https?:\/\//i.test(String(u || '').trim());
+  const domainOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+
+  /* ---------- backend ---------- */
+
+  async function api(action, data = {}) {
+    if (DEMO) return demoApi(action, data);
+    let res;
+    try {
+      // String body => text/plain => no CORS preflight, which Apps Script cannot answer.
+      res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action, passcode: session.passcode, user: session.name, ...data }),
+      });
+    } catch { throw new Error('Could not reach the wishlist. Check your connection.'); }
+    let out;
+    try { out = await res.json(); } catch { throw new Error('Backend gave an unexpected reply. Check the Apps Script deployment.'); }
+    if (!out.ok) {
+      const err = new Error(out.error === 'unauthorized' ? 'Wrong passcode.' : (out.error || 'Something went wrong.'));
+      err.unauthorized = out.error === 'unauthorized';
+      throw err;
+    }
+    return out;
+  }
+
+  // Browser-only stand-in for the backend, used until API_URL is set.
+  function demoApi(action, data) {
+    const all = store.get(KEY.demo, []);
+    const view = (o) => ({ ...o, gifted: same(o.addedBy, session.name) ? false : !!o.gifted });
+    if (action === 'list') return { ok: true, items: all.map(view) };
+    if (action === 'preview') return { ok: true, meta: {} };
+    if (action === 'add') {
+      const o = { ...data.item, id: String(Date.now()) + Math.random().toString(16).slice(2), addedBy: session.name, createdAt: Date.now(), gifted: false };
+      store.set(KEY.demo, [...all, o]);
+      return { ok: true, item: view(o) };
+    }
+    if (action === 'update') {
+      const o = all.find((x) => x.id === data.id);
+      if (!o) throw new Error('Item not found — it may have been deleted.');
+      Object.assign(o, data.item);
+      store.set(KEY.demo, all);
+      return { ok: true, item: view(o) };
+    }
+    if (action === 'delete') { store.set(KEY.demo, all.filter((x) => x.id !== data.id)); return { ok: true }; }
+    throw new Error('Unknown action.');
+  }
+
+  /* ---------- rendering ---------- */
+
+  function el(tag, props = {}, ...kids) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === 'class') node.className = v;
+      else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) node.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids) if (kid != null && kid !== false) node.append(kid);
+    return node;
+  }
+
+  function ago(ts) {
+    if (!ts) return '';
+    const days = Math.floor((Date.now() - ts) / 864e5);
+    if (days < 1) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 30) return days + ' days ago';
+    return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function placeholder(item) {
+    return el('div', { class: 'ph' }, el('span', {}, '🎁'), domainOf(item.url) || 'No picture');
+  }
+
+  function card(item) {
+    const mine = same(item.addedBy, session.name);
+    const link = isHttp(item.url) ? item.url : null;
+    const title = item.title || domainOf(item.url) || 'Untitled';
+    const linkAttrs = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {};
+
+    const thumb = el(link ? 'a' : 'div', { class: 'thumb', ...linkAttrs, 'aria-label': link ? 'Open ' + title : null });
+    if (isHttp(item.image)) {
+      const img = el('img', { src: item.image, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' });
+      img.addEventListener('error', () => img.replaceWith(placeholder(item)));
+      thumb.append(img);
+    } else {
+      thumb.append(placeholder(item));
+    }
+    if (item.gifted) thumb.append(el('span', { class: 'badge' }, 'Bought ✓'));
+
+    const sub = [mine ? 'You' : item.addedBy, ago(item.createdAt), domainOf(item.url)].filter(Boolean).join(' · ');
+
+    return el('article', { class: 'card' },
+      thumb,
+      el('div', { class: 'body' },
+        el('h3', {}, link ? el('a', linkAttrs, title) : title),
+        item.price && el('div', { class: 'price' }, item.price),
+        item.note && el('p', { class: 'note' }, item.note),
+        el('div', { class: 'sub' }, sub),
+        el('div', { class: 'actions' },
+          !mine && el('button', { class: 'act' + (item.gifted ? ' on' : ''), title: mine ? null : item.addedBy + " won't see this", onclick: () => toggleGifted(item) },
+            item.gifted ? 'Bought ✓' : 'Mark bought'),
+          el('button', { class: 'act', onclick: () => openForm(item) }, 'Edit'),
+          el('button', { class: 'act danger', onclick: () => removeItem(item) }, 'Delete'),
+        ),
+      ),
+    );
+  }
+
+  function render() {
+    const people = [];
+    for (const it of items) if (it.addedBy && !people.some((p) => same(p, it.addedBy)) && !same(it.addedBy, session.name)) people.push(it.addedBy);
+    const count = (name) => items.filter((it) => same(it.addedBy, name)).length;
+    const options = [
+      { key: 'all', label: 'Everything', n: items.length },
+      { key: 'me', label: 'My wishes', n: count(session.name) },
+      ...people.map((p) => ({ key: 'p:' + p.toLowerCase(), label: p + '’s wishes', n: count(p) })),
+    ];
+    if (!options.some((o) => o.key === filter)) filter = 'all';
+
+    $('chips').replaceChildren(...options.map((o) =>
+      el('button', { class: 'chip', 'aria-pressed': String(o.key === filter), onclick: () => { filter = o.key; render(); } },
+        o.label, el('span', { class: 'n' }, String(o.n)))));
+
+    const shown = items
+      .filter((it) => filter === 'all' || (filter === 'me' ? same(it.addedBy, session.name) : 'p:' + String(it.addedBy).toLowerCase() === filter))
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    $('grid').replaceChildren(...shown.map(card));
+    $('empty').hidden = shown.length > 0;
+    $('emptyText').textContent = items.length ? 'Nothing here yet.' : 'No wishes yet. Tap “Add item” and paste a product link.';
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    $('toast').textContent = msg;
+    $('toast').hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $('toast').hidden = true; }, 4000);
+  }
+
+  function fail(err) {
+    if (err.unauthorized) { signOut('Wrong passcode. Try again.'); return; }
+    toast(err.message || 'Something went wrong.');
+  }
+
+  /* ---------- actions ---------- */
+
+  async function load() {
+    try {
+      items = (await api('list')).items;
+      store.set(KEY.cache, items);
+      render();
+    } catch (err) { fail(err); }
+  }
+
+  async function toggleGifted(item) {
+    try {
+      const { item: fresh } = await api('update', { id: item.id, item: { gifted: !item.gifted } });
+      replaceItem(fresh);
+    } catch (err) { fail(err); }
+  }
+
+  async function removeItem(item) {
+    if (!confirm('Delete “' + (item.title || 'this item') + '”?')) return;
+    try {
+      await api('delete', { id: item.id });
+      items = items.filter((x) => x.id !== item.id);
+      store.set(KEY.cache, items);
+      render();
+    } catch (err) { fail(err); }
+  }
+
+  function replaceItem(fresh) {
+    const i = items.findIndex((x) => x.id === fresh.id);
+    if (i >= 0) items[i] = fresh; else items.push(fresh);
+    store.set(KEY.cache, items);
+    render();
+  }
+
+  /* ---------- add / edit form ---------- */
+
+  let lastPreviewed = '';
+
+  function openForm(item) {
+    editingId = item ? item.id : null;
+    $('dlgTitle').textContent = item ? 'Edit item' : 'Add item';
+    $('furl').value = item?.url || '';
+    $('ftitle').value = item?.title || '';
+    $('fprice').value = item?.price || '';
+    $('fimage').value = item?.image || '';
+    $('fnote').value = item?.note || '';
+    $('fstatus').textContent = '';
+    $('formErr').textContent = '';
+    lastPreviewed = item?.url || '';
+    showPreview();
+    $('dlg').showModal();
+    if (!item) $('furl').focus();
+  }
+
+  function showPreview() {
+    const src = $('fimage').value.trim();
+    $('fpreview').hidden = !isHttp(src);
+    if (isHttp(src)) $('fpreviewImg').src = src;
+  }
+
+  async function fetchDetails() {
+    const url = $('furl').value.trim();
+    if (!isHttp(url) || url === lastPreviewed) return;
+    lastPreviewed = url;
+    if (DEMO) { $('fstatus').textContent = 'Demo mode: connect the backend to fetch title and picture automatically.'; return; }
+    $('fstatus').textContent = 'Fetching title and picture…';
+    try {
+      const { meta } = await api('preview', { url });
+      if ($('furl').value.trim() !== url) return;       // link changed while we waited
+      if (meta.title && !$('ftitle').value.trim()) $('ftitle').value = meta.title;
+      if (meta.image && !$('fimage').value.trim()) $('fimage').value = meta.image;
+      if (meta.price && !$('fprice').value.trim()) $('fprice').value = meta.price;
+      showPreview();
+      $('fstatus').textContent = meta.title || meta.image
+        ? (meta.image ? 'Details filled in. Edit anything you like.' : 'Found the title, but no picture — you can paste an image link.')
+        : 'This site blocked the lookup. Type a title, and paste an image link if you want a picture.';
+    } catch (err) {
+      if (err.unauthorized) { $('dlg').close(); fail(err); return; }
+      $('fstatus').textContent = 'Could not fetch details. Fill them in by hand.';
+    }
+  }
+
+  $('furl').addEventListener('change', fetchDetails);
+  $('furl').addEventListener('paste', () => setTimeout(fetchDetails, 0));
+  $('fimage').addEventListener('input', showPreview);
+  $('fpreviewImg').addEventListener('error', () => { $('fpreview').hidden = true; });
+  $('cancelBtn').addEventListener('click', () => $('dlg').close());
+
+  $('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const item = {
+      url: $('furl').value.trim(),
+      title: $('ftitle').value.trim(),
+      price: $('fprice').value.trim(),
+      image: $('fimage').value.trim(),
+      note: $('fnote').value.trim(),
+    };
+    if (item.url && !isHttp(item.url)) { $('formErr').textContent = 'Link must start with http:// or https://'; return; }
+    if (item.image && !isHttp(item.image)) { $('formErr').textContent = 'Image link must start with http:// or https://'; return; }
+    if (!item.url && !item.title) { $('formErr').textContent = 'Add a link or a title.'; return; }
+    if (!item.title) item.title = domainOf(item.url);
+
+    $('saveBtn').disabled = true;
+    $('saveBtn').textContent = 'Saving…';
+    try {
+      const out = editingId ? await api('update', { id: editingId, item }) : await api('add', { item });
+      replaceItem(out.item);
+      $('dlg').close();
+    } catch (err) {
+      if (err.unauthorized) { $('dlg').close(); fail(err); }
+      else $('formErr').textContent = err.message;
+    } finally {
+      $('saveBtn').disabled = false;
+      $('saveBtn').textContent = 'Save';
+    }
+  });
+
+  /* ---------- sign in / out ---------- */
+
+  function showApp() {
+    $('login').hidden = true;
+    $('app').hidden = false;
+    $('demoBanner').hidden = !DEMO;
+    $('who').textContent = 'Hi, ' + session.name;
+    items = DEMO ? [] : store.get(KEY.cache, []);   // show last known list instantly, then refresh
+    render();
+    load();
+  }
+
+  function signOut(message) {
+    session = null;
+    items = [];
+    store.del(KEY.session);
+    store.del(KEY.cache);
+    $('app').hidden = true;
+    $('login').hidden = false;
+    $('passWrap').hidden = DEMO;
+    $('lpass').required = !DEMO;
+    $('lpass').value = '';
+    $('loginErr').textContent = message || '';
+  }
+
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = $('lname').value.trim();
+    if (!name) return;
+    session = { name, passcode: $('lpass').value };
+    $('loginBtn').disabled = true;
+    $('loginErr').textContent = '';
+    try {
+      items = (await api('list')).items;      // doubles as the passcode check
+      store.set(KEY.session, session);
+      store.set(KEY.cache, items);
+      showApp();
+    } catch (err) {
+      session = null;
+      $('loginErr').textContent = err.message;
+    } finally {
+      $('loginBtn').disabled = false;
+    }
+  });
+
+  $('signout').addEventListener('click', () => signOut());
+  $('refresh').addEventListener('click', load);
+  $('addBtn').addEventListener('click', () => openForm(null));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && session) load(); });
+
+  if (session && session.name) showApp(); else signOut();
+})();
+</script>
+</body>
+</html>
