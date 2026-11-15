@@ -556,6 +556,40 @@
   .sheet-top { background: var(--glass-strong); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
   .c-guide { background: var(--glass-chip); }
   .toast { box-shadow: 0 10px 30px rgba(0, 0, 0, .25); }
+
+  /* ===== Motion: quick, light, opacity/transform only ===== */
+  @keyframes fade-in { from { opacity: 0; } }
+  @keyframes fade-out { to { opacity: 0; } }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+  @keyframes pop-out { to { opacity: 0; transform: translateY(8px) scale(.985); } }
+  @keyframes sheet-up { from { transform: translateY(100%); } }
+  @keyframes sheet-down { to { transform: translateY(100%); } }
+  @keyframes drop-in { from { opacity: 0; transform: translateY(-6px); } }
+  @keyframes menu-in { from { opacity: 0; transform: scale(.94); } }
+  @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 10px); } }
+
+  dialog[open] { animation: pop-in .22s cubic-bezier(.2, .8, .2, 1) backwards; }
+  dialog[open]::backdrop { animation: fade-in .2s ease-out backwards; }
+  dialog.closing { animation: pop-out .17s ease-in forwards; }
+  dialog.closing::backdrop { animation: fade-out .17s ease-in forwards; }
+  @media (max-width: 560px) {                      /* phones: sheets slide up from the bottom and back down */
+    dialog[open] { animation: sheet-up .28s cubic-bezier(.2, .8, .2, 1) backwards; }
+    dialog.closing { animation: sheet-down .17s ease-in forwards; }
+  }
+  .menu { transform-origin: top right; animation: menu-in .13s ease-out backwards; }
+  .panel:not([hidden]) { animation: drop-in .18s ease-out backwards; }
+  .toast:not([hidden]) { animation: toast-in .2s ease-out backwards; }
+  #app:not([hidden]), #settingsPage:not([hidden]), #setup:not([hidden]) { animation: fade-in .18s ease-out backwards; }
+
+  /* press feedback: a small, fast squeeze */
+  button, .steps a.small { transition: transform .09s ease-out, background-color .15s, color .15s, border-color .15s, box-shadow .18s; -webkit-tap-highlight-color: transparent; }
+  button:active:not(:disabled), .steps a.small:active { transform: scale(.97); }
+  .more:active { transform: scale(.92); }
+  a, select, input, label { -webkit-tap-highlight-color: transparent; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after, ::backdrop { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
 </style>
 </head>
 <body>
@@ -1203,6 +1237,22 @@
       : other() + ' has not added any wishes yet.';
   }
 
+  // Sheets and popups animate out before they really close. Short, and only opacity/transform, so it stays light.
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function closeSheet(d) {
+    if (!d.open || d.classList.contains('closing')) return;
+    if (calm.matches) { d.close(); return; }
+    d.classList.add('closing');
+    setTimeout(() => {
+      if (!d.classList.contains('closing')) return;        // reopened meanwhile
+      d.classList.remove('closing');
+      d.close();
+    }, 170);
+  }
+  for (const id of ['dlg', 'connectDlg']) {
+    $(id).addEventListener('cancel', (e) => { e.preventDefault(); closeSheet($(id)); });   // Esc key / Android back
+  }
+
   let toastTimer;
   function toast(msg) {
     $('toast').textContent = msg;
@@ -1329,6 +1379,7 @@
     $('formErr').textContent = '';
     lastFetched = item?.url || '';
     showPreview();
+    $('dlg').classList.remove('closing');
     $('dlg').showModal();
     if (!item) $('furl').focus({ preventScroll: true });
     $('dlg').scrollTop = 0;                       // always open at the top, under the sheet header
@@ -1374,7 +1425,7 @@
         : !meta.title ? 'Found the photo, but this store hid the name — type a title.'
         : filled ? 'Filled in from the link. Change anything you like.' : 'Details found; kept what you typed.';
     } catch (err) {
-      if (err.unauthorized) { $('dlg').close(); fail(err); return; }
+      if (err.unauthorized) { closeSheet($('dlg')); fail(err); return; }
       $('fstatus').classList.remove('busy');
       $('fstatus').textContent = 'Could not fetch details. Fill them in by hand.';
     }
@@ -1386,9 +1437,9 @@
   for (const id of Object.values(AUTO)) $(id).addEventListener('input', () => { delete $(id).dataset.auto; });
   $('fimage').addEventListener('input', showPreview);
   $('fpreviewImg').addEventListener('error', () => { $('fpreview').hidden = true; });
-  $('cancelBtn').addEventListener('click', () => $('dlg').close());
-  $('closeX').addEventListener('click', () => $('dlg').close());
-  $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').close(); });   // tap outside the sheet
+  $('cancelBtn').addEventListener('click', () => closeSheet($('dlg')));
+  $('closeX').addEventListener('click', () => closeSheet($('dlg')));
+  $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) closeSheet($('dlg')); });   // tap outside the sheet
 
   // Phone: drag the top strip of the sheet down to dismiss it.
   let dragFrom = null;
@@ -1440,9 +1491,9 @@
       const out = editingId ? await api('update', { id: editingId, item }) : await api('add', { item });
       if (!editingId) tab = 'mine';
       replaceItem(out.item);
-      $('dlg').close();
+      closeSheet($('dlg'));
     } catch (err) {
-      if (err.unauthorized) { $('dlg').close(); fail(err); }
+      if (err.unauthorized) { closeSheet($('dlg')); fail(err); }
       else $('formErr').textContent = err.message;
     } finally {
       $('saveBtn').disabled = false;
@@ -1456,7 +1507,7 @@
   const URL_HELP = 'That is not an Apps Script web app URL. It looks like https://script.google.com/macros/s/…/exec';
   const show = (id) => {
     for (const s of ['app', 'setup', 'settingsPage']) $(s).hidden = s !== id;
-    if (id !== 'setup' && $('connectDlg').open) $('connectDlg').close();
+    if (id !== 'setup' && $('connectDlg').open) closeSheet($('connectDlg'));
   };
 
   function showApp() {
@@ -1484,10 +1535,11 @@
       : 'Enter your names, then the script URL and passcode from your Google Sheet.';
     $('setupErr').textContent = message || '';
     if (prefill || message) openConnect();        // setup link, or something to fix: go straight to the form
-    else if ($('connectDlg').open) $('connectDlg').close();
+    else if ($('connectDlg').open) closeSheet($('connectDlg'));
   }
   const narrowDlg = window.matchMedia('(max-width: 820px)');
   function openConnect() {
+    $('connectDlg').classList.remove('closing');
     if (!$('connectDlg').open) $('connectDlg').showModal();
     if (!narrowDlg.matches) $('guide').open = true;           // wide screens: the steps sit open beside the form
     $('connectDlg').scrollTop = 0;
@@ -1498,8 +1550,8 @@
     $('sme').focus({ preventScroll: true });
     requestAnimationFrame(() => { $('connectDlg').scrollTop = 0; });   // keep the intro line visible under the header
   });
-  $('connectX').addEventListener('click', () => $('connectDlg').close());
-  $('connectDlg').addEventListener('click', (e) => { if (e.target === $('connectDlg')) $('connectDlg').close(); });
+  $('connectX').addEventListener('click', () => closeSheet($('connectDlg')));
+  $('connectDlg').addEventListener('click', (e) => { if (e.target === $('connectDlg')) closeSheet($('connectDlg')); });
 
   $('setupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
