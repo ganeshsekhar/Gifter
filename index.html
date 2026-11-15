@@ -314,7 +314,17 @@
     padding: 20px; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
   }
   dialog::backdrop { background: rgba(10, 10, 12, .5); }
+  dialog { scroll-padding-top: 76px; }           /* focused fields never hide under the sticky sheet header */
   dialog h2 { font-size: 19px; }
+  .sheet-top { position: sticky; top: 0; z-index: 2; margin: -20px -20px 2px; padding: 12px 20px 6px; background: var(--surface); border-radius: 20px 20px 0 0; }
+  .sheet-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .xbtn { flex: none; width: 44px; height: 44px; margin-right: -10px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 17px; }
+  .xbtn:hover { background: var(--soft); color: var(--ink); }
+  .grabber { display: none; width: 42px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 6px; }
+  @media (max-width: 599px) {
+    .grabber { display: block; }
+    .sheet-top { touch-action: none; cursor: grab; padding-top: 10px; }   /* drag this strip down to close */
+  }
   @media (max-width: 560px) {
     dialog { margin: auto 0 0; width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   }
@@ -486,7 +496,10 @@
 
 <dialog id="dlg">
   <form id="itemForm" method="dialog">
-    <h2 id="dlgTitle">Add idea</h2>
+    <div class="sheet-top" id="sheetTop">
+      <span class="grabber" aria-hidden="true"></span>
+      <div class="sheet-title"><h2 id="dlgTitle">Add idea</h2><button type="button" class="xbtn" id="closeX" aria-label="Close">✕</button></div>
+    </div>
     <label for="furl">Product link</label>
     <div class="urlrow">
       <input id="furl" type="url" inputmode="url" placeholder="Paste a link — details fill in automatically" autocomplete="off">
@@ -994,20 +1007,34 @@
     render();
   }
 
+  // Claiming shows at once; the Sheet catches up in the background. If saving fails, it is put back.
+  const claimSeq = {};
   async function toggleClaim(item) {
+    const want = !item.claimed;
+    const seq = claimSeq[item.id] = (claimSeq[item.id] || 0) + 1;
+    replaceItem({ ...item, claimed: want, claimedBy: want ? me() : '' });
     try {
-      replaceItem((await api('update', { id: item.id, item: { claimed: !item.claimed } })).item);
-    } catch (err) { fail(err); }
+      const saved = (await api('update', { id: item.id, item: { claimed: want } })).item;
+      if (claimSeq[item.id] === seq) replaceItem(saved);            // ignore replies overtaken by a newer tap
+    } catch (err) {
+      if (claimSeq[item.id] === seq && items.some((x) => x.id === item.id)) replaceItem(item);
+      fail(err);
+    }
   }
 
+  // Deleting also shows at once, and comes back if the Sheet refuses.
   async function removeItem(item) {
     if (!confirm('Delete “' + (item.title || 'this item') + '”?')) return;
+    const before = items;
+    items = items.filter((x) => x.id !== item.id);
+    store.set(KEY.cache, { user: me(), items });
+    render();
     try {
       await api('delete', { id: item.id });
-      items = items.filter((x) => x.id !== item.id);
-      store.set(KEY.cache, { user: me(), items });
-      render();
-    } catch (err) { fail(err); }
+    } catch (err) {
+      if (!items.some((x) => x.id === item.id)) { items = [...items, item]; store.set(KEY.cache, { user: me(), items }); render(); }
+      fail(err);
+    }
   }
 
   /* ---------- add / edit form with auto-fill from the link ---------- */
@@ -1034,7 +1061,8 @@
     lastFetched = item?.url || '';
     showPreview();
     $('dlg').showModal();
-    if (!item) $('furl').focus();
+    if (!item) $('furl').focus({ preventScroll: true });
+    $('dlg').scrollTop = 0;                       // always open at the top, under the sheet header
   }
 
   function showNeed() { $('fneedOut').textContent = NEED_LABELS[Number($('fneed').value)] || 'Want'; }
@@ -1087,6 +1115,35 @@
   $('fimage').addEventListener('input', showPreview);
   $('fpreviewImg').addEventListener('error', () => { $('fpreview').hidden = true; });
   $('cancelBtn').addEventListener('click', () => $('dlg').close());
+  $('closeX').addEventListener('click', () => $('dlg').close());
+  $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').close(); });   // tap outside the sheet
+
+  // Phone: drag the top strip of the sheet down to dismiss it.
+  let dragFrom = null;
+  const dragBy = (e) => Math.max(0, e.clientY - dragFrom);
+  $('sheetTop').addEventListener('pointerdown', (e) => {
+    if (!narrow.matches || e.target.closest('button')) return;
+    dragFrom = e.clientY;
+    $('dlg').style.transition = 'none';
+    $('sheetTop').setPointerCapture(e.pointerId);
+  });
+  $('sheetTop').addEventListener('pointermove', (e) => {
+    if (dragFrom !== null) $('dlg').style.transform = 'translateY(' + dragBy(e) + 'px)';
+  });
+  const dragEnd = (e) => {
+    if (dragFrom === null) return;
+    const far = e.type === 'pointerup' && dragBy(e) > 110;
+    dragFrom = null;
+    $('dlg').style.transition = 'transform .2s ease';
+    $('dlg').style.transform = far ? 'translateY(100%)' : '';
+    setTimeout(() => {
+      if (far) $('dlg').close();
+      $('dlg').style.transition = '';
+      $('dlg').style.transform = '';
+    }, 200);
+  };
+  $('sheetTop').addEventListener('pointerup', dragEnd);
+  $('sheetTop').addEventListener('pointercancel', dragEnd);
   $('dlg').addEventListener('close', () => clearTimeout(fetchTimer));
 
   $('itemForm').addEventListener('submit', async (e) => {
