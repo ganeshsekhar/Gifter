@@ -591,6 +591,7 @@
       $('fstatus').textContent = !meta.title && !meta.image
         ? 'This store blocked the lookup. Type a title, and paste an image link if you want a photo.'
         : !meta.image ? 'Found the title but no photo — paste an image link to add one.'
+        : !meta.title ? 'Found the photo, but this store hid the name — type a title.'
         : filled ? 'Filled in from the link. Change anything you like.' : 'Details found; kept what you typed.';
     } catch (err) {
       if (err.unauthorized) { $('dlg').close(); fail(err); return; }

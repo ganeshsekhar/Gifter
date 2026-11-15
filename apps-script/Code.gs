@@ -181,22 +181,76 @@ function deleteItem(id) {
 
 /* ---------- Link preview (title / image / price from the product page) ---------- */
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml',
+  'Accept-Language': 'en-US,en;q=0.9'
+};
+
 function fetchMeta(url) {
   if (!url) return {};
+  let meta = {};
+  let pageUrl = url;
   try {
-    const res = UrlFetchApp.fetch(url, {
-      muteHttpExceptions: true,
-      followRedirects: true,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'en-US,en;q=0.9'
-      }
-    });
-    if (res.getResponseCode() >= 400) return {};
-    return extractMeta(res.getContentText().slice(0, 1500000), url);
+    if (isAmazon(url)) pageUrl = resolveRedirects(url);     // amzn.in/d/… short links -> full product link
+    const res = UrlFetchApp.fetch(pageUrl, { muteHttpExceptions: true, followRedirects: true, headers: FETCH_HEADERS });
+    const html = res.getContentText().slice(0, 1500000);
+    if (res.getResponseCode() < 400 && !looksBlocked(html)) meta = extractMeta(html, pageUrl);
+  } catch (err) { /* fall through to the fallbacks below */ }
+  if (isAmazon(pageUrl)) meta = amazonFallback(meta, pageUrl);
+  return meta;
+}
+
+function isAmazon(url) {
+  return /^https?:\/\/([a-z0-9-]+\.)*(amazon\.[a-z.]{2,6}|amzn\.[a-z]{2,3}|a\.co)\//i.test(url);
+}
+
+// A "prove you are not a robot" page instead of the product.
+function looksBlocked(html) {
+  return /api-services-support@amazon\.com|validateCaptcha|Enter the characters you see below/i.test(html) ||
+    (html.length < 20000 && /captcha/i.test(html));
+}
+
+function resolveRedirects(url) {
+  let current = url;
+  for (let i = 0; i < 5; i++) {
+    const res = UrlFetchApp.fetch(current, { muteHttpExceptions: true, followRedirects: false, headers: FETCH_HEADERS });
+    const code = res.getResponseCode();
+    const headers = res.getHeaders();
+    const next = httpUrl(absolutize(headers['Location'] || headers['location'], current));
+    if (code < 300 || code >= 400 || !next) break;
+    current = next;
+  }
+  return current;
+}
+
+// Amazon often refuses automated page lookups. The product ID in the link is
+// still enough to get the main photo, and the link text usually holds the name.
+function amazonFallback(meta, url) {
+  const id = url.match(/\/(?:dp|gp\/product|gp\/aw\/d|d)\/([A-Z0-9]{10})(?:[\/?#]|$)/i);
+  if (!id) return meta;
+  if (!meta.image) {
+    const img = 'https://m.media-amazon.com/images/P/' + id[1].toUpperCase() + '.01._SCLZZZZZZZ_SX600_.jpg';
+    if (isRealImage(img)) meta.image = img;
+  }
+  if (!meta.title) {
+    const slug = url.match(/amazon\.[a-z.]+\/([^\/?#]+)\/dp\//i);
+    if (slug) {
+      try { meta.title = clean(decodeURIComponent(slug[1]).replace(/[-_+]+/g, ' '), 200); } catch (err) { /* odd encoding: skip */ }
+    }
+  }
+  return meta;
+}
+
+// Unknown product IDs answer with a 1-pixel GIF rather than an error.
+function isRealImage(url) {
+  try {
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    const headers = res.getHeaders();
+    const type = String(headers['Content-Type'] || headers['content-type'] || '');
+    return res.getResponseCode() === 200 && /^image\/(jpeg|png|webp)/i.test(type) && res.getContent().length > 1000;
   } catch (err) {
-    return {};
+    return false;
   }
 }
 
@@ -225,6 +279,7 @@ function extractMeta(html, url) {
       price = ((offer.priceCurrency || '') + ' ' + (offer.price || offer.lowPrice)).trim();
     }
   }
+  if (!price) price = first(/class=["']a-offscreen["'][^>]*>\s*([^<\s][^<]{0,30})</i);   // Amazon's price markup
 
   return {
     title: clean(title.replace(/\s+/g, ' '), 200),
