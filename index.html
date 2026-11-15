@@ -654,6 +654,31 @@
   .dd-menu button[aria-selected="true"]::after { content: "✓"; color: var(--primary); font-weight: 700; }
   @media (hover: hover) { .dd-menu button:hover { background: var(--glass-chip); } }
   .cat-chips .opt { min-height: 40px; padding: 0 14px; }
+
+  /* ===== Controls: the header pills (currency, name, settings) and the toolbar buttons (layout, sort & filter)
+     share one look and one set of states ===== */
+  .pick, .me, .round, .filter-btn {
+    min-height: 44px; border-radius: 999px; color: var(--ink); font-size: 13px; font-weight: 600;
+    background: var(--glass); border: 1px solid var(--glass-edge);
+    box-shadow: 0 10px 30px rgba(30, 24, 110, .10), inset 0 1px 0 var(--glass-shine);
+    transition: background-color .15s, border-color .15s, color .15s;
+  }
+  .filter-btn { padding: 0 16px; gap: 8px; }
+  .round, .filter-btn.icon-only { width: 44px; min-width: 44px; padding: 0; justify-content: center; }
+  .pick-btn { font-size: 13px; font-weight: 600; color: inherit; min-height: 42px; }   /* 42 + 2px border = 44, same as the round buttons */
+  .pick, .me { min-height: 0; }
+  .pick::after, .me::after { color: currentColor; opacity: .55; }
+  .gear, .filter-btn svg { width: 18px; height: 18px; }
+  @media (hover: hover) {
+    .pick:hover, .me:hover, .round:hover, .filter-btn:hover {
+      color: var(--primary); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--glass));
+    }
+  }
+  /* open / active: the same tinted state everywhere */
+  .filter-btn.on, .filter-btn[aria-expanded="true"], .has-btn:has(.pick-btn[aria-expanded="true"]) {
+    color: var(--primary); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 18%, var(--glass));
+  }
+  .pick:focus-within, .me:focus-within { outline: 2px solid var(--primary); outline-offset: 1px; }
 </style>
 </head>
 <body>
