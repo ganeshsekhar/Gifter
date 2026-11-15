@@ -52,8 +52,10 @@ Sheet — each couple's data stays in their own Sheet, and nothing is shared bet
 5. **Deploy → New deployment → Select type: Web app**.
    - Execute as: **Me**
    - Who has access: **Anyone**
-6. Click **Deploy**, approve the permissions Google asks for (it is your own script), and copy the
-   **Web app URL** (ends in `/exec`).
+6. Click **Deploy**. Google shows a **"Google hasn't verified this app"** warning — that is
+   normal: it is your own script, run only by you, so Google has never reviewed it. Choose
+   **Advanced → Go to (project name)**, then allow. It should ask only for *this* spreadsheet and
+   "connect to an external service". Copy the **Web app URL** (ends in `/exec`).
 
 ### 2. Connect your device
 

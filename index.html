@@ -320,6 +320,7 @@
   .copy-btn { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 0 18px; border-radius: 12px; font-size: 14px; }
   .copy-btn svg { width: 16px; height: 16px; flex: none; }
   .copy-btn.done { background: var(--claim); color: var(--on-claim); }
+  .ok-note { font-weight: 700; color: var(--claim); }
   .guide code { font-size: 12.500px; padding: 1px 5px; border-radius: 5px; background: var(--surface); }
   .guide .hint { margin: 0 0 14px; }
   .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
@@ -471,7 +472,7 @@
         <li>Copy the Gifter script and paste it into the editor.<button type="button" class="primary copy-btn" id="copyScript"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.500" y="5.500" width="8" height="8" rx="1.800"/><path d="M10.500 3.300V3.200A1.700 1.700 0 0 0 8.800 1.500H4.200A1.700 1.700 0 0 0 2.500 3.200v5.600a1.700 1.700 0 0 0 1.700 1.700h.100"/></svg><span id="copyScriptText">Copy script</span></button></li>
         <li>Near the top, change <code>CHANGE-ME</code> to a passcode of your own. Save.</li>
         <li><b>Deploy → New deployment → Web app</b>. Execute as <b>Me</b>, who has access <b>Anyone</b>. Your passcode is what keeps others out.</li>
-        <li>Approve Google’s prompt (Advanced → Go to project). It should ask only for this spreadsheet and “connect to an external service”.</li>
+        <li>Google shows a <b>“Google hasn’t verified this app”</b> warning. <span class="ok-note">That is normal</span> — it is your own script, run only by you, so Google has never reviewed it. Choose <b>Advanced → Go to project</b>, then allow. It should ask only for this spreadsheet and “connect to an external service”.</li>
         <li>Copy the <b>Web app URL</b> (it ends in <code>/exec</code>) and paste it above, with your passcode below.</li>
       </ol>
       <p class="hint">Stuck? The <a href="https://github.com/ganeshsekhar/Gifter#setup-about-10-minutes-once" target="_blank" rel="noopener">full guide</a> has more detail.</p>
