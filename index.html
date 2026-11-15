@@ -6,21 +6,28 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <title>Gifter</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2317181a'/><g transform='translate(4.8 4.4) scale(.7)'><path d='M16 9.5C13.8 4.4 8.4 3.9 7.9 6.9S12 10 16 9.5zM16 9.5c2.2-5.1 7.6-5.6 8.1-2.6S20 10 16 9.5z' fill='none' stroke='%23ff7a63' stroke-width='2.6' stroke-linejoin='round'/><rect x='3' y='9.5' width='26' height='6.5' rx='2.4' fill='white'/><rect x='5' y='17.5' width='22' height='11.5' rx='3' fill='white'/><rect x='14.3' y='9.5' width='3.4' height='19.5' fill='%23ff7a63'/></g></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23e5533d'/><g transform='translate(4.8 4.4) scale(.7)'><path d='M16 9.5C13.8 4.4 8.4 3.9 7.9 6.9S12 10 16 9.5zM16 9.5c2.2-5.1 7.6-5.6 8.1-2.6S20 10 16 9.5z' fill='none' stroke='white' stroke-width='2.6' stroke-linejoin='round'/><rect x='3' y='9.5' width='26' height='6.5' rx='2.4' fill='white'/><rect x='5' y='17.5' width='22' height='11.5' rx='3' fill='white'/><rect x='14.3' y='9.5' width='3.4' height='19.5' fill='%23e5533d'/></g></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f4f0; --surface: #ffffff; --ink: #17181a; --muted: #74767c; --line: #e4e2dc; --soft: #ebe9e3;
-    --accent: #17181a; --on-accent: #ffffff; --claim: #1f7a55; --on-claim: #ffffff; --danger: #b3261e;
-    --seg: #e9e7e1; --seg-on: #ffffff; --shadow: 0 1px 2px rgba(0, 0, 0, .05);
-    --pop: 0 10px 30px rgba(0, 0, 0, .16); --logo: #e5533d;
+    --bg: #fbf7f3; --surface: #ffffff; --ink: #1f1a1c; --muted: #7d7377; --line: #eee6df; --soft: #f5ede7;
+    --primary: #e5533d; --primary-strong: #cf4430; --on-primary: #ffffff; --primary-soft: #fde8e2;
+    --accent: var(--primary); --on-accent: var(--on-primary); --logo: var(--primary);
+    --claim: #1f7a55; --on-claim: #ffffff; --danger: #b3261e;
+    --seg: #f3ebe5; --seg-on: #ffffff;
+    --shadow: 0 1px 2px rgba(60, 30, 20, .05), 0 8px 24px rgba(60, 30, 20, .06);
+    --lift: 0 2px 4px rgba(60, 30, 20, .06), 0 16px 36px rgba(60, 30, 20, .12);
+    --pop: 0 10px 30px rgba(40, 20, 10, .18);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #111214; --surface: #1c1d20; --ink: #f1f0ec; --muted: #9a9ca3; --line: #2d2f34; --soft: #26282c;
-      --accent: #f1f0ec; --on-accent: #17181a; --claim: #3f9c70; --on-claim: #ffffff; --danger: #f2877f;
-      --seg: #1c1d20; --seg-on: #34373d; --shadow: none; --pop: 0 10px 30px rgba(0, 0, 0, .5); --logo: #ff7a63;
+      --bg: #141112; --surface: #1f1b1c; --ink: #f5efec; --muted: #a59b9d; --line: #322c2d; --soft: #2a2526;
+      --primary: #ff7a63; --primary-strong: #ff9480; --on-primary: #2b0e08; --primary-soft: #3a211c;
+      --claim: #3f9c70; --on-claim: #ffffff; --danger: #f2877f;
+      --seg: #1f1b1c; --seg-on: #383132;
+      --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset; --lift: 0 14px 34px rgba(0, 0, 0, .5);
+      --pop: 0 10px 30px rgba(0, 0, 0, .55);
     }
   }
   * { box-sizing: border-box; }
@@ -47,7 +54,7 @@
     background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 26px 4px 4px;
   }
   .me i {
-    flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+    flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
     display: grid; place-content: center; font-style: normal; font-size: 12px; font-weight: 700;
   }
   .me select {
@@ -55,12 +62,24 @@
     max-width: 34vw; font-size: 13px; font-weight: 600; color: var(--ink); text-overflow: ellipsis; cursor: pointer;
   }
   .me select:focus { outline: none; }
-  .me:focus-within { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .me:focus-within { outline: 2px solid var(--primary); outline-offset: 1px; }
   .me::after { content: "▾"; position: absolute; right: 10px; font-size: 11px; color: var(--muted); pointer-events: none; }
   .round {
     flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line);
     display: grid; place-content: center; font-size: 15px; padding: 0;
   }
+
+  .hero {
+    position: relative; overflow: hidden; border-radius: 22px; padding: 20px 20px 18px; margin-bottom: 14px;
+    background: radial-gradient(120% 150% at 100% 0%, var(--primary-soft) 0%, transparent 62%), var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--primary); }
+  .hero h2 { font: 600 34px/1.1 "Fraunces", Georgia, serif; letter-spacing: -.02em; margin: 4px 0 6px; overflow-wrap: anywhere; }
+  .herosub { margin: 0 0 16px; font-size: 13.5px; color: var(--muted); max-width: 34ch; }
+  .hero-art { position: absolute; right: -18px; top: -14px; width: 132px; height: 132px; color: var(--primary); --logo: var(--primary-strong); opacity: .2; transform: rotate(-14deg); pointer-events: none; }
+  .hero .seg { position: relative; margin-bottom: 0; background: var(--bg); }
+  @media (min-width: 600px) { .hero { padding: 28px 28px 24px; } .hero h2 { font-size: 44px; } .hero-art { width: 190px; height: 190px; right: 6px; top: -20px; } }
 
   .banner { background: var(--soft); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 
@@ -69,14 +88,15 @@
     flex: 1; min-width: 0; background: none; border: 0; border-radius: 8px; padding: 8px 6px;
     font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .tab[aria-selected="true"] { background: var(--seg-on); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
+  .tab { transition: background .15s, color .15s; }
+  .tab[aria-selected="true"] { background: var(--seg-on); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
   .tab .n { font-weight: 400; margin-left: 5px; }
 
   .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 16px; min-height: 36px; }
   .views { display: flex; gap: 18px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .views::-webkit-scrollbar { display: none; }
   .view { background: none; border: 0; padding: 6px 0; font-size: 13.5px; font-weight: 500; color: var(--muted); white-space: nowrap; }
-  .view[aria-pressed="true"] { color: var(--ink); font-weight: 700; }
+  .view[aria-pressed="true"] { color: var(--ink); font-weight: 700; box-shadow: inset 0 -2px 0 var(--primary); }
   .view .n { margin-left: 5px; font-size: 12px; font-weight: 400; color: var(--muted); }
   .count { font-size: 13.5px; color: var(--muted); padding: 6px 0; }
   .filter-btn {
@@ -84,13 +104,39 @@
     border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; white-space: nowrap;
   }
   .filter-btn svg { width: 14px; height: 14px; display: block; }
-  .filter-btn.on, .filter-btn[aria-expanded="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .filter-btn:hover { border-color: var(--primary); }
+  .filter-btn.on, .filter-btn[aria-expanded="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
 
   .panel { background: var(--surface); border-radius: 16px; padding: 16px; margin: -4px 0 18px; display: grid; gap: 16px; box-shadow: var(--shadow); }
   .panel h4 { margin: 0 0 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
   .opts { display: flex; flex-wrap: wrap; gap: 6px; }
   .opt { background: var(--soft); border: 0; border-radius: 999px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
-  .opt[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .opt:hover { background: var(--primary-soft); }
+  .opt[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+  .range-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+  .range-head h4 { margin: 0; }
+  .range-val { font-size: 12.5px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .range { position: relative; height: 32px; margin: 0 2px; }
+  .range .track, .range .fill { position: absolute; top: 14px; height: 4px; border-radius: 2px; }
+  .range .track { left: 0; right: 0; background: var(--soft); }
+  .range .fill { background: var(--primary); }
+  .range input {
+    position: absolute; inset: 0; width: 100%; height: 32px; margin: 0; padding: 0; border: 0; background: none;
+    -webkit-appearance: none; appearance: none; pointer-events: none; z-index: 2;
+  }
+  .range input:focus { outline: none; }
+  .range input::-webkit-slider-runnable-track { background: transparent; height: 32px; }
+  .range input::-moz-range-track { background: transparent; }
+  .range input::-webkit-slider-thumb {
+    -webkit-appearance: none; pointer-events: auto; width: 24px; height: 24px; margin-top: 4px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--primary); box-shadow: 0 1px 4px rgba(0, 0, 0, .25); cursor: grab;
+  }
+  .range input::-moz-range-thumb {
+    pointer-events: auto; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--primary); box-shadow: 0 1px 4px rgba(0, 0, 0, .25); cursor: grab;
+  }
+  .range input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--logo); outline-offset: 2px; }
+  .range input:focus-visible::-moz-range-thumb { outline: 2px solid var(--logo); outline-offset: 2px; }
   .clear { justify-self: start; background: none; border: 0; padding: 0; font-size: 12.5px; font-weight: 600; color: var(--muted); text-decoration: underline; }
 
   .pick { position: relative; flex: none; margin: 0; display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; }
@@ -100,15 +146,21 @@
     padding: 8px 24px 8px 12px; font-size: 12.5px; font-weight: 600; color: var(--ink); cursor: pointer;
   }
   .pick select:focus { outline: none; }
-  .pick:focus-within { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .pick:focus-within { outline: 2px solid var(--primary); outline-offset: 1px; }
   .pick option { color: #17181a; background: #fff; }
 
   .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   @media (min-width: 600px) { .grid { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
 
-  .card { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; }
+  .card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; transition: transform .18s ease, box-shadow .18s ease; }
+  .media img { transition: transform .35s ease; }
+  @media (hover: hover) {
+    .card:hover { transform: translateY(-3px); box-shadow: var(--lift); }
+    .card:hover .media img { transform: scale(1.04); }
+  }
+  @media (prefers-reduced-motion: reduce) { .card, .media img { transition: none; } .card:hover { transform: none; } .card:hover .media img { transform: none; } }
   .pic { position: relative; aspect-ratio: 4 / 5; }
-  .media { display: block; position: absolute; inset: 0; border-radius: 14px 14px 0 0; overflow: hidden; background: var(--soft); text-decoration: none; }
+  .media { display: block; position: absolute; inset: 0; border-radius: 16px 16px 0 0; overflow: hidden; background: var(--soft); text-decoration: none; }
   .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .ph { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 4px; color: var(--muted); font-size: 12px; padding: 12px; overflow-wrap: anywhere; }
   .ph span { font-size: 44px; font-weight: 700; line-height: 1; opacity: .45; }
@@ -146,10 +198,11 @@
   .note { font-size: 12px; color: var(--muted); margin: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .when { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
   .claim {
-    background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
+    background: transparent; border: 1.5px solid var(--primary); color: var(--primary); transition: background .15s, color .15s;
     border-radius: 10px; padding: 8px 6px; font-size: 12px; font-weight: 700; margin-top: 9px;
   }
   .grow { flex: 1; min-height: 5px; }
+  @media (hover: hover) { .claim:not(.done):hover { background: var(--primary); color: var(--on-primary); } }
   .claim.done { background: var(--claim); border-color: var(--claim); color: var(--on-claim); }
 
   .skel .pic, .skel i { background: var(--soft); animation: pulse 1.2s ease-in-out infinite alternate; }
@@ -158,13 +211,20 @@
   @keyframes pulse { to { opacity: .45; } }
   @media (prefers-reduced-motion: reduce) { .skel .pic, .skel i { animation: none; } }
 
-  .empty { text-align: center; color: var(--muted); padding: 64px 20px; font-size: 14px; }
+  .empty { text-align: center; color: var(--muted); padding: 48px 20px 64px; font-size: 14px; }
+  .empty-art { width: 84px; height: 84px; margin: 0 auto 14px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); --logo: var(--primary-strong); display: grid; place-content: center; }
+  .empty-art .logo { width: 44px; height: 44px; }
 
   .fab {
-    position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom));
-    background: var(--accent); color: var(--on-accent); border: 0; border-radius: 14px;
-    padding: 14px 20px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 22px rgba(0, 0, 0, .25);
+    position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary); color: var(--on-primary); border: 0; border-radius: 999px;
+    padding: 14px 22px 14px 18px; font-weight: 700; font-size: 14.5px;
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 45%, transparent); transition: transform .15s ease, background .15s;
   }
+  .fab::before { content: "+"; font-size: 20px; line-height: 1; font-weight: 500; margin-top: -2px; }
+  @media (hover: hover) { .fab:hover { background: var(--primary-strong); transform: translateY(-2px); } }
+  .primary { transition: background .15s; }
+  @media (hover: hover) { .primary:hover:not(:disabled) { background: var(--primary-strong); } }
   .primary { background: var(--accent); color: var(--on-accent); border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 700; }
   .ghost { background: transparent; border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; font-weight: 600; }
   button:disabled { opacity: .55; cursor: default; }
@@ -174,9 +234,9 @@
   label.check input { width: auto; }
   input, textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; }
   textarea { resize: vertical; min-height: 64px; }
-  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  input:focus, textarea:focus, select:focus, button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
   .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
-  .hint a { color: var(--ink); font-weight: 600; }
+  .hint a { color: var(--primary); font-weight: 600; }
 
   .setup { max-width: 440px; margin: 6vh auto 40px; padding: 0 14px; }
   .box { background: var(--surface); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
@@ -197,11 +257,11 @@
   @media (max-width: 560px) {
     dialog { margin: auto 0 0; width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   }
-  .needbox { margin-top: 14px; padding: 12px 14px 10px; border-radius: 14px; background: var(--soft); }
+  .needbox { margin-top: 14px; padding: 12px 14px 10px; border-radius: 14px; background: var(--primary-soft); }
   .needhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .needhead label { margin: 0; font-size: 13px; color: var(--ink); }
   .needhead output { font-size: 13px; font-weight: 700; color: var(--logo); }
-  .needbox input[type="range"] { width: 100%; margin: 10px 0 4px; padding: 0; border: 0; background: transparent; accent-color: var(--logo); height: 24px; }
+  .needbox input[type="range"] { width: 100%; margin: 10px 0 4px; padding: 0; border: 0; background: transparent; accent-color: var(--primary); height: 24px; }
   .ends { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; color: var(--muted); }
   .shoprow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
   .shoprow .shop { min-width: 0; }
@@ -274,15 +334,21 @@
     <button class="round" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
-  <nav class="seg" id="tabs" role="tablist"></nav>
+  <section class="hero">
+    <svg class="hero-art" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 9.5C13.8 4.4 8.4 3.9 7.9 6.9S12 10 16 9.5zM16 9.5c2.2-5.1 7.6-5.6 8.1-2.6S20 10 16 9.5z" fill="none" stroke="var(--logo)" stroke-width="2.3" stroke-linejoin="round"/><rect x="3" y="9.5" width="26" height="6.5" rx="2.4" fill="currentColor"/><rect x="5" y="17.5" width="22" height="11.5" rx="3" fill="currentColor"/><rect x="14.3" y="9.5" width="3.4" height="19.5" fill="var(--logo)"/></svg>
+    <p class="eyebrow" id="heroEyebrow"></p>
+    <h2 id="heroTitle"></h2>
+    <p class="herosub" id="heroSub"></p>
+    <nav class="seg" id="tabs" role="tablist"></nav>
+  </section>
   <div class="bar">
     <nav class="views" id="chips" aria-label="Claim filter"></nav>
     <div id="tools"></div>
   </div>
   <section class="panel" id="panel" aria-label="Sort and filter" hidden></section>
   <main class="grid" id="grid"></main>
-  <div class="empty" id="empty" hidden><div id="emptyText"></div></div>
-  <button class="fab" id="addBtn">+ Add idea</button>
+  <div class="empty" id="empty" hidden><div class="empty-art"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 9.5C13.8 4.4 8.4 3.9 7.9 6.9S12 10 16 9.5zM16 9.5c2.2-5.1 7.6-5.6 8.1-2.6S20 10 16 9.5z" fill="none" stroke="var(--logo)" stroke-width="2.3" stroke-linejoin="round"/><rect x="3" y="9.5" width="26" height="6.5" rx="2.4" fill="currentColor"/><rect x="5" y="17.5" width="22" height="11.5" rx="3" fill="currentColor"/><rect x="14.3" y="9.5" width="3.4" height="19.5" fill="var(--logo)"/></svg></div><div id="emptyText"></div></div>
+  <button class="fab" id="addBtn">Add idea</button>
 </div>
 
 <dialog id="dlg">
@@ -337,8 +403,9 @@
   let items = [];
   let tab = 'theirs';        // 'theirs' | 'mine'
   let filter = 'all';        // 'all' | 'available' | 'claimed'  (only on their wishlist)
-  let catFilter = 'all';     // 'all' | a category name
-  let priceBand = 'any';     // 'any' | index into BANDS
+  const catPicked = new Set();   // categories ticked in the filter; empty = all
+  let priceLo = 0;               // price range, in the currency on screen
+  let priceHi = null;            // null = no upper limit
   let sortBy = 'new';        // 'new' | 'old' | 'low' | 'high' | 'need'
   let filterOpen = false;    // sort & filter panel
   let editingId = null;
@@ -473,7 +540,16 @@
     return shown.converted ? '≈ ' + formatMoney(Math.round(shown.amount * 100) / 100, cur, true) : formatMoney(shown.amount, cur);
   }
   const amountOf = (item) => { const p = parsePrice(item.price); if (!p) return null; const shown = toShown(p); return shown ? shown.amount : p.amount; };
-  const bandsFor = (code) => code === 'INR' ? [1000, 5000, 15000] : [25, 100, 250];
+  // Slider scale for a list: 0 … just above its dearest item, in tidy steps.
+  function priceScale(list) {
+    const max = Math.max(0, ...list.map((it) => amountOf(it) || 0));
+    if (!max) return { top: 0, step: 1 };
+    const step = Math.max(1, Math.pow(10, Math.floor(Math.log10(max))) / 20);
+    return { top: Math.ceil(max / step) * step, step };
+  }
+  const priceActive = () => priceLo > 0 || priceHi !== null;
+  const activeCount = () => catPicked.size + (priceActive() ? 1 : 0) + (sortBy !== 'new' ? 1 : 0);
+  let syncActive = () => {};     // refreshes the Sort & filter button without rebuilding the panel
 
   async function loadRates() {
     const cached = store.get(KEY.rates, null);
@@ -594,8 +670,8 @@
     $('iam').replaceChildren(...settings.names.map((n, i) => el('option', { value: String(i), selected: i === settings.active }, n)));
 
     const tabs = [
-      { key: 'theirs', label: other() + '’s Wishlist', n: theirList.length },
-      { key: 'mine', label: 'My Wishlist', n: mineList.length },
+      { key: 'theirs', label: other() + '’s wishlist', n: theirList.length },
+      { key: 'mine', label: 'My wishlist', n: mineList.length },
     ];
     $('tabs').replaceChildren(...tabs.map((t) =>
       el('button', { class: 'tab', role: 'tab', 'aria-selected': String(t.key === tab), onclick: () => { tab = t.key; render(); } },
@@ -605,12 +681,21 @@
     const list = onTheirs ? theirList : mineList;
     if (!onTheirs) filter = 'all';
 
+    const ideas = (n) => n + (n === 1 ? ' idea' : ' ideas');
+    const claimedCount = theirList.filter((it) => it.claimed).length;
+    $('heroEyebrow').textContent = onTheirs ? 'Gift ideas for' : 'Your wishlist';
+    $('heroTitle').textContent = onTheirs ? other() : 'Things you’d love';
+    $('heroSub').textContent = onTheirs
+      ? (theirList.length ? ideas(theirList.length) + ' · ' + claimedCount + ' claimed by you · ' + (theirList.length - claimedCount) + ' still open' : 'Nothing here yet. Ask ' + other() + ' to add a few ideas.')
+      : (mineList.length ? ideas(mineList.length) + ' shared with ' + other() + '. Claims stay hidden from you.' : 'Add what you like, so ' + other() + ' always knows what to get.');
+
     cur = pickCurrency();
     $('currency').value = cur;
     const present = CATEGORY_NAMES.filter((c) => list.some((it) => categoryOf(it) === c));
-    if (catFilter !== 'all' && !present.includes(catFilter)) catFilter = 'all';
-    const bands = bandsFor(cur);
-    const money = (n) => formatMoney(n, cur);
+    for (const c of [...catPicked]) if (!present.includes(c)) catPicked.delete(c);
+    const scale = priceScale(list);
+    if (priceLo >= scale.top) priceLo = 0;
+    if (priceHi !== null && priceHi >= scale.top) priceHi = null;
 
     // Left of the bar: claim views on their wishlist, a quiet count on your own.
     if (onTheirs) {
@@ -623,31 +708,79 @@
         el('button', { class: 'view', 'aria-pressed': String(v.key === filter), onclick: () => { filter = v.key; render(); } },
           v.label, el('span', { class: 'n' }, String(v.n)))));
     } else {
-      $('chips').replaceChildren(el('span', { class: 'count' }, list.length + (list.length === 1 ? ' idea' : ' ideas')));
+      $('chips').replaceChildren();
     }
 
     // Right of the bar: one button; the choices live in a panel that opens under it.
-    const active = (catFilter !== 'all') + (priceBand !== 'any') + (sortBy !== 'new');
     const icon = el('span', {});
     icon.innerHTML = SLIDERS;
-    $('tools').replaceChildren(el('button', {
-      class: 'filter-btn' + (active ? ' on' : ''), 'aria-expanded': String(filterOpen), 'aria-controls': 'panel',
-      onclick: () => { filterOpen = !filterOpen; render(); },
-    }, icon, active ? 'Sort & filter · ' + active : 'Sort & filter'));
+    const btnText = el('span', {});
+    const btn = el('button', { class: 'filter-btn', 'aria-expanded': String(filterOpen), 'aria-controls': 'panel',
+      onclick: () => { filterOpen = !filterOpen; render(); } }, icon, btnText);
+    const reset = el('button', { class: 'clear', onclick: () => { catPicked.clear(); priceLo = 0; priceHi = null; sortBy = 'new'; render(); } }, 'Reset');
+    syncActive = () => {
+      const n = activeCount();
+      btn.classList.toggle('on', n > 0);
+      btnText.textContent = n ? 'Sort & filter · ' + n : 'Sort & filter';
+      reset.hidden = !n;
+    };
+    syncActive();
+    $('tools').replaceChildren(btn);
 
-    const group = (title, value, options, setter) => el('div', {}, el('h4', {}, title), el('div', { class: 'opts' },
-      ...options.map(([v, text]) => el('button', { class: 'opt', 'aria-pressed': String(v === value), onclick: () => { setter(v); render(); } }, text))));
+    // options: [label, isOn, onClick]
+    const chipGroup = (title, options) => el('div', {}, el('h4', {}, title), el('div', { class: 'opts' },
+      ...options.map(([text, on, click]) => el('button', { class: 'opt', 'aria-pressed': String(on), onclick: () => { click(); render(); } }, text))));
+    const sorts = [['new', 'Newest'], ['old', 'Oldest'], ['low', 'Price: low to high'], ['high', 'Price: high to low'], ['need', 'Most needed']];
     $('panel').hidden = !filterOpen;
     if (filterOpen) {
       $('panel').replaceChildren(
-        group('Sort', sortBy, [['new', 'Newest'], ['old', 'Oldest'], ['low', 'Price: low to high'], ['high', 'Price: high to low'], ['need', 'Most needed']], (v) => { sortBy = v; }),
-        group('Category', catFilter, [['all', 'All'], ...present.map((c) => [c, c])], (v) => { catFilter = v; }),
-        group('Price', priceBand, [['any', 'Any'], ['0', 'Under ' + money(bands[0])], ['1', money(bands[0]) + ' – ' + money(bands[1])],
-          ['2', money(bands[1]) + ' – ' + money(bands[2])], ['3', 'Over ' + money(bands[2])]], (v) => { priceBand = v; }),
-        active ? el('button', { class: 'clear', onclick: () => { catFilter = 'all'; priceBand = 'any'; sortBy = 'new'; render(); } }, 'Reset') : '');
+        chipGroup('Sort', sorts.map(([v, text]) => [text, v === sortBy, () => { sortBy = v; }])),
+        // Several categories can be on at once; "All" clears them.
+        chipGroup('Category', [['All', !catPicked.size, () => catPicked.clear()],
+          ...present.map((c) => [c, catPicked.has(c), () => { if (!catPicked.delete(c)) catPicked.add(c); }])]),
+        priceGroup(scale),
+        reset);
     }
+    drawGrid();
+  }
 
-    const band = priceBand === 'any' ? null : [[0, bands[0]], [bands[0], bands[1]], [bands[1], bands[2]], [bands[2], Infinity]][Number(priceBand)];
+  // Two-handle price slider. Dragging redraws only the cards, so the handle is never rebuilt mid-drag.
+  function priceGroup(scale) {
+    if (!scale.top) return el('div', {}, el('h4', {}, 'Price'), el('div', { class: 'count' }, 'No prices on this list yet.'));
+    const label = el('span', { class: 'range-val' });
+    const fill = el('div', { class: 'fill' });
+    const make = (name) => el('input', { type: 'range', min: '0', max: String(scale.top), step: String(scale.step), 'aria-label': name });
+    const lo = make('Lowest price'), hi = make('Highest price');
+    lo.value = priceLo;
+    hi.value = priceHi === null ? scale.top : priceHi;
+    const paint = () => {
+      const a = Number(lo.value), b = Number(hi.value);
+      fill.style.left = (a / scale.top * 100) + '%';
+      fill.style.right = (100 - b / scale.top * 100) + '%';
+      lo.style.zIndex = a > scale.top / 2 ? 3 : 1;          // keep the low handle grabbable when both sit at the top
+      label.textContent = a <= 0 && b >= scale.top ? 'Any price' : formatMoney(a, cur) + ' – ' + formatMoney(b, cur);
+    };
+    const onInput = (e) => {
+      if (Number(lo.value) > Number(hi.value)) { if (e.target === lo) lo.value = hi.value; else hi.value = lo.value; }
+      priceLo = Number(lo.value);
+      priceHi = Number(hi.value) >= scale.top ? null : Number(hi.value);
+      paint();
+      syncActive();
+      drawGrid();
+    };
+    lo.addEventListener('input', onInput);
+    hi.addEventListener('input', onInput);
+    paint();
+    return el('div', {},
+      el('div', { class: 'range-head' }, el('h4', {}, 'Price'), label),
+      el('div', { class: 'range' }, el('div', { class: 'track' }), fill, lo, hi));
+  }
+
+  function drawGrid() {
+    const onTheirs = tab === 'theirs';
+    const theirList = items.filter((it) => same(it.addedBy, other()));
+    const list = onTheirs ? theirList : items.filter((it) => same(it.addedBy, me()));
+
     const newest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
     const byPrice = (dir) => (a, b) => {
       const x = amountOf(a), y = amountOf(b);
@@ -656,11 +789,13 @@
     };
     const order = { new: newest, old: (a, b) => newest(b, a), low: byPrice(1), high: byPrice(-1),
       need: (a, b) => needOf(b) - needOf(a) || newest(a, b) }[sortBy];
+    const ranged = priceActive();
+    const hi = priceHi === null ? Infinity : priceHi;
 
     const shown = list
       .filter((it) => filter === 'all' || (filter === 'claimed') === !!it.claimed)
-      .filter((it) => catFilter === 'all' || categoryOf(it) === catFilter)
-      .filter((it) => { if (!band) return true; const a = amountOf(it); return a !== null && a >= band[0] && a < band[1]; })
+      .filter((it) => !catPicked.size || catPicked.has(categoryOf(it)))
+      .filter((it) => { if (!ranged) return true; const a = amountOf(it); return a !== null && a >= priceLo && a <= hi; })
       .sort(order);
 
     if (loading && !items.length) {             // first load: placeholders instead of a false "empty" message
@@ -670,7 +805,7 @@
     }
     $('grid').replaceChildren(...shown.map(card));
     $('empty').hidden = shown.length > 0;
-    $('emptyText').textContent = (catFilter !== 'all' || priceBand !== 'any') && list.length ? 'Nothing matches these filters.'
+    $('emptyText').textContent = (catPicked.size || ranged) && list.length ? 'Nothing matches these filters.'
       : !onTheirs
       ? 'Your wishlist is empty. Tap “+ Add idea” and paste a product link.'
       : filter === 'claimed' ? 'You have not claimed anything yet.'
@@ -955,7 +1090,7 @@
   }
 
   $('addBtn').addEventListener('click', () => openForm(null));
-  $('currency').addEventListener('change', (e) => { store.set(KEY.currency, e.target.value); priceBand = 'any'; render(); });
+  $('currency').addEventListener('change', (e) => { store.set(KEY.currency, e.target.value); priceLo = 0; priceHi = null; render(); });
   loadRates();
   document.addEventListener('visibilitychange', () => { if (!document.hidden && settings && !$('app').hidden) load(); });
 
