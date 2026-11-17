@@ -683,7 +683,15 @@
   .namefield { display: flex; gap: 8px; margin-top: 10px; }
   .namefield input { flex: 1; min-width: 0; }
   .namefield button { min-height: 44px; }
-  .wordmark { overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
+  .wordmark { overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 560px) {
+    .wordmark { max-width: 46vw; }
+    /* a long wishlist name takes the first line; the controls drop to a second line */
+    header.top.long-name { flex-wrap: wrap; row-gap: 12px; }
+    header.top.long-name .brand { flex: 1 0 100%; }
+    header.top.long-name .wordmark { max-width: 100%; }
+    header.top.long-name .round { margin-left: auto; }
+  }
 </style>
 </head>
 <body>
@@ -1640,6 +1648,7 @@
     const name = (settings && settings.appName) || '';
     document.title = name || 'Gifter';
     $('brand').setAttribute('aria-label', name || 'Gifter');
+    $('brand').parentElement.classList.toggle('long-name', name.length > 9);   // long names get their own line on phones
     if (!name) { $('brand').innerHTML = BRAND_DEFAULT; return; }
     const mark = el('span', { class: 'wordmark', 'aria-hidden': 'true' });
     const i = name.indexOf('i');
