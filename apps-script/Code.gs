@@ -48,7 +48,7 @@ function handle(req) {
   const user = clean(req.user, 40);
   if (!user) return { ok: false, error: 'Missing name.' };
 
-  if (req.action === 'list') return { ok: true, items: listItems(user) };
+  if (req.action === 'list') return { ok: true, items: listItems(user), appName: getConfig('appName') };
   if (req.action === 'preview') return { ok: true, meta: fetchMeta(httpUrl(req.url)) };
 
   const lock = LockService.getScriptLock();
@@ -57,10 +57,49 @@ function handle(req) {
     if (req.action === 'add') return addItem(req.item || {}, user);
     if (req.action === 'update') return updateItem(req.id, req.item || {}, user);
     if (req.action === 'delete') return deleteItem(req.id);
+    if (req.action === 'setName') return { ok: true, appName: setConfig('appName', clean(req.name, 30)) };
   } finally {
     lock.releaseLock();
   }
   return { ok: false, error: 'Unknown action.' };
+}
+
+/* ---------- Per-sheet settings (a small "Config" tab: key in column A, value in column B) ---------- */
+// Used for the wishlist's own name, so each couple's Sheet can show its own title in the app.
+
+const CONFIG_NAME = 'Config';
+
+function configRows(sh) {
+  const last = sh.getLastRow();
+  return last < 1 ? [] : sh.getRange(1, 1, last, 2).getValues();
+}
+
+function getConfig(key) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG_NAME);
+  if (!sh) return '';
+  const rows = configRows(sh);
+  for (let i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === key) return String(rows[i][1]).trim();
+  }
+  return '';
+}
+
+function setConfig(key, value) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(CONFIG_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(CONFIG_NAME);
+    sh.getRange(1, 1, sh.getMaxRows(), 2).setNumberFormat('@');
+  }
+  const rows = configRows(sh);
+  for (let i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === key) {
+      sh.getRange(i + 1, 2).setValue(cell(value));
+      return value;
+    }
+  }
+  sh.appendRow([key, cell(value)]);
+  return value;
 }
 
 /* ---------- Sheet storage ---------- */

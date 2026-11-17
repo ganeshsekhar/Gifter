@@ -12,6 +12,9 @@ A private gift wishlist for two. Free to run:
 - **Auto-filled product cards** — tap **+ Add Idea**, paste a product link, and the photo, title and
   price fill in by themselves. Every field can be overridden, including a custom image link for
   stores that block lookups.
+- **Your own name for it** — Settings → Wishlist name replaces "Gifter" at the top of the app for
+  everyone connected to that Sheet. It is stored in the Sheet (a small `Config` tab), so other
+  couples using their own Sheets still see Gifter.
 - **Sort and filter** — by category (picked in the form, or guessed from the title), price range,
   newest/oldest, price and "most needed".
 - **Want or need** — every idea carries a want-to-need slider, so the giver knows what matters most.

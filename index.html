@@ -679,6 +679,11 @@
     color: var(--primary); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 18%, var(--glass));
   }
   .pick:focus-within, .me:focus-within { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .namerow { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .namefield { display: flex; gap: 8px; margin-top: 10px; }
+  .namefield input { flex: 1; min-width: 0; }
+  .namefield button { min-height: 44px; }
+  .wordmark { overflow: hidden; text-overflow: ellipsis; max-width: 46vw; }
 </style>
 </head>
 <body>
@@ -780,6 +785,12 @@
         <button type="button" class="tab" data-theme-pick="dark">Dark</button>
       </div>
     </div>
+    <form class="namerow" id="nameForm">
+      <h3>Wishlist name</h3>
+      <p>Shown at the top of the app for both of you, instead of “Gifter”. Leave blank to keep Gifter.</p>
+      <div class="namefield"><input id="appName" maxlength="30" placeholder="Gifter" autocomplete="off" aria-label="Wishlist name"><button class="primary small" id="nameSave">Save</button></div>
+      <div class="err" id="nameErr" role="alert"></div>
+    </form>
     <div class="setrow">
       <div><h3>Show prices in</h3><p>Converted prices are marked ≈. Saved prices keep their own currency.</p></div>
       <label class="pick"><select id="currency2" aria-label="Show prices in"><option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option></select></label>
@@ -818,7 +829,7 @@
 
 <div class="wrap" id="app" hidden>
   <header class="top">
-    <h1 class="brand" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></h1>
+    <h1 class="brand" id="brand" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></h1>
     <label class="pick" title="Show prices in"><select id="currency" aria-label="Show prices in">
       <option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
     </select></label>
@@ -1390,7 +1401,9 @@
     syncState = 'busy';
     showSync();
     try {
-      const fresh = (await api('list')).items;
+      const res = await api('list');
+      const fresh = res.items;
+      if (typeof res.appName === 'string') applyName(res.appName);   // this Sheet's own name, if it has one
       if (seq !== loadSeq) return;                 // profile switched while loading
       if (writes > 0 && quiet) { syncState = 'idle'; showSync(); return; }   // do not overwrite a change still being saved
       items = fresh;
@@ -1620,7 +1633,33 @@
     if (id !== 'setup' && $('connectDlg').open) closeSheet($('connectDlg'));
   };
 
+  // A Sheet can carry its own name (Settings → Wishlist name). It replaces "Gifter" in the app header for
+  // everyone connected to that Sheet. The landing page and any other Sheet keep the Gifter logo.
+  const BRAND_DEFAULT = $('brand').innerHTML;
+  function drawBrand() {
+    const name = (settings && settings.appName) || '';
+    document.title = name || 'Gifter';
+    $('brand').setAttribute('aria-label', name || 'Gifter');
+    if (!name) { $('brand').innerHTML = BRAND_DEFAULT; return; }
+    const mark = el('span', { class: 'wordmark', 'aria-hidden': 'true' });
+    const i = name.indexOf('i');
+    if (i < 0) {
+      mark.textContent = name;
+    } else {                                  // keep the heart: it becomes the dot of the first "i"
+      const holder = document.createElement('div');
+      holder.innerHTML = BRAND_DEFAULT;
+      mark.append(name.slice(0, i), holder.querySelector('.wi'), name.slice(i + 1));
+    }
+    $('brand').replaceChildren(mark);
+  }
+  function applyName(name) {
+    name = String(name || '').trim().slice(0, 30);
+    if (name !== (settings.appName || '')) { settings.appName = name; store.set(KEY.settings, settings); }
+    drawBrand();
+  }
+
   function showApp() {
+    drawBrand();
     show('app');
     $('demoBanner').hidden = !demo();
     const cache = store.get(KEY.cache, null);
@@ -1633,6 +1672,7 @@
   // Shown until this device is connected; also where a setup link lands.
   function openSetup(message, prefill) {
     show('setup');
+    document.title = 'Gifter';                    // the landing page is always Gifter
     window.scrollTo(0, 0);
     $('sme').value = prefill ? prefill.names[0] : '';
     $('spartner').value = prefill ? prefill.names[1] : '';
@@ -1726,6 +1766,8 @@
     // Preferences
     $('currency2').value = cur;
     refreshPicks();
+    $('appName').value = settings.appName || '';
+    $('nameErr').textContent = '';
 
     // Connection
     const id = (settings.api.match(/\/s\/([\w-]+)\/exec$/) || [])[1] || '';
@@ -1804,6 +1846,25 @@
   }
   darkQuery.addEventListener('change', applyTheme);
   applyTheme();
+
+  $('nameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = $('appName').value.trim().slice(0, 30);
+    $('nameErr').textContent = '';
+    if (demo()) { applyName(name); toast('Name saved on this device.'); return; }
+    $('nameSave').disabled = true;
+    try {
+      const res = await api('setName', { name });
+      applyName(res.appName);
+      toast(res.appName ? 'Name saved for this wishlist.' : 'Back to Gifter.');
+    } catch (err) {
+      $('nameErr').textContent = /Unknown action/.test(err.message)
+        ? 'Your Google script is an older version. Paste the latest Code.gs, deploy a new version, then try again.'
+        : err.message;
+    } finally {
+      $('nameSave').disabled = false;
+    }
+  });
 
   function setCurrency(code) {
     store.set(KEY.currency, code);
