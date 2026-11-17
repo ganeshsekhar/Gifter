@@ -685,14 +685,12 @@
   .namefield button { min-height: 44px; }
   /* clip only sideways (for the … on very long names); letter tails like y and g must hang free below the line */
   .wordmark { overflow: visible; overflow-x: clip; text-overflow: ellipsis; padding-bottom: .220em; margin-bottom: -.220em; }
-  @media (max-width: 560px) {
-    .wordmark { max-width: 46vw; }
-    /* a long wishlist name takes the first line; the controls drop to a second line */
-    header.top.long-name { flex-wrap: wrap; row-gap: 12px; }
-    header.top.long-name .brand { flex: 1 0 100%; }
-    header.top.long-name .wordmark { max-width: 100%; }
-    header.top.long-name .round { margin-left: auto; }
-  }
+  @media (max-width: 560px) { .wordmark { max-width: calc(100vw - 104px); } }
+  .settings .me, .settings .pick { flex: none; }
+  .settings .pick-btn { max-width: 44vw; }
+  .namerow + .setrow { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .namecols { margin-top: 16px; padding-top: 4px; border-top: 1px solid var(--line); }
+  .box:has(.dd-menu) { overflow: visible; }
 </style>
 </head>
 <body>
@@ -763,7 +761,11 @@
 
   <h2 class="sec">People</h2>
   <form class="box" id="profileForm">
-    <div class="cols">
+    <div class="setrow">
+      <div><h3>I am</h3><p>Who is using this device. Decides which wishlist is yours.</p></div>
+      <label class="me" for="iam" title="I am"><select id="iam" aria-label="I am"></select></label>
+    </div>
+    <div class="cols namecols">
       <div><label for="pme">You</label><input id="pme" maxlength="40" autocomplete="off"></div>
       <div><label for="ppartner">Your partner</label><input id="ppartner" maxlength="40" autocomplete="off"></div>
     </div>
@@ -839,10 +841,9 @@
 <div class="wrap" id="app" hidden>
   <header class="top">
     <h1 class="brand" id="brand" aria-label="Gifter"><span class="wordmark" aria-hidden="true">G<span class="wi">ı<svg class="wheart" viewBox="0 0 11.4 10.6"><path d="M5.7 10.4C1.8 7.9 0 6.1 0 4.1a2.900 2.900 0 0 1 5.700-.900 2.900 2.900 0 0 1 5.700.900c0 2-1.800 3.800-5.700 6.300z"/></svg></span>fter</span></h1>
-    <label class="pick" title="Show prices in"><select id="currency" aria-label="Show prices in">
+    <select id="currency" hidden aria-hidden="true">
       <option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
-    </select></label>
-    <label class="me" for="iam" title="I am"><select id="iam" aria-label="I am"></select></label>
+    </select>
     <button class="round" id="settingsBtn" aria-label="Settings" title="Settings"><svg class="gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.700" stroke-linejoin="round" aria-hidden="true"><path d="M10.19 4.93L10.57 2.51L13.43 2.51L13.81 4.93L15.72 5.72L17.70 4.27L19.73 6.30L18.28 8.28L19.07 10.19L21.49 10.57L21.49 13.43L19.07 13.81L18.28 15.72L19.73 17.70L17.70 19.73L15.72 18.28L13.81 19.07L13.43 21.49L10.57 21.49L10.19 19.07L8.28 18.28L6.30 19.73L4.27 17.70L5.72 15.72L4.93 13.81L2.51 13.43L2.51 10.57L4.93 10.19L5.72 8.28L4.27 6.30L6.30 4.27L8.28 5.72Z"/><circle cx="12" cy="12" r="3.100"/></svg></button>
   </header>
   <div class="banner" id="demoBanner" hidden>Demo mode — no Google Sheet connected. Items stay in this browser and links are not auto-filled. Connect in Settings.</div>
@@ -1649,7 +1650,6 @@
     const name = (settings && settings.appName) || '';
     document.title = name || 'Gifter';
     $('brand').setAttribute('aria-label', name || 'Gifter');
-    $('brand').parentElement.classList.toggle('long-name', name.length > 9);   // long names get their own line on phones
     if (!name) { $('brand').innerHTML = BRAND_DEFAULT; return; }
     const mark = el('span', { class: 'wordmark', 'aria-hidden': 'true' });
     const i = name.indexOf('i');
@@ -1929,6 +1929,7 @@
     items = []; loading = true; tab = 'theirs'; filter = 'all';     // claims differ per person: drop the old view at once
     render();
     load();
+    if (!$('settingsPage').hidden) { openSettings(); toast('Switched to ' + me() + '.'); }   // the switcher lives in Settings
   });
 
   // Setup link: #setup=<base64 json>. The part after # never leaves the browser.
@@ -1983,7 +1984,7 @@
   function refreshPicks() { picks.forEach((p) => p.sync()); }
   document.addEventListener('click', closePicks);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicks(); });
-  ['iam', 'currency', 'currency2'].forEach((id) => enhance($(id)));
+  ['iam', 'currency2'].forEach((id) => enhance($(id)));
 
   // A link shared from another Android app arrives as #share=<base64 json> (see sw.js).
   function readShare() {
