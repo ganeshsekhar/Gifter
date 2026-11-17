@@ -683,7 +683,8 @@
   .namefield { display: flex; gap: 8px; margin-top: 10px; }
   .namefield input { flex: 1; min-width: 0; }
   .namefield button { min-height: 44px; }
-  .wordmark { overflow: hidden; text-overflow: ellipsis; }
+  /* clip only sideways (for the … on very long names); letter tails like y and g must hang free below the line */
+  .wordmark { overflow: visible; overflow-x: clip; text-overflow: ellipsis; padding-bottom: .220em; margin-bottom: -.220em; }
   @media (max-width: 560px) {
     .wordmark { max-width: 46vw; }
     /* a long wishlist name takes the first line; the controls drop to a second line */
